@@ -4318,6 +4318,13 @@ async function loadData(SNAP){
 
  // ================= BLOC A — mails (+ catégories) : le cœur du tableau =================
  const A=Promise.all([P.mails,P.cats]).then(([mails])=>{
+  // Autocontrôle des marques locales : une entrée « classé » de plus de 10 minutes
+  // sans catégorie correspondante dans Outlook est un classement perdu (ancienne
+  // version) — on l'efface pour que le mail réapparaisse, sur chaque appareil.
+  try{const nowV=Date.now();let nv=0;
+   (mails||[]).forEach(m=>{const v=VALID[m.id];
+    if(v&&typeof v==='number'&&nowV-v>600000&&!(m.categories&&m.categories.length)){delete VALID[m.id];nv++;}});
+   if(nv)validSave();}catch(e){}
   const groups={};let pub=[],r48=[];PUB_LIST=[];
   const yest=new Date();yest.setDate(yest.getDate()-1);yest.setHours(0,0,0,0);
   const today0=new Date();today0.setHours(0,0,0,0);
