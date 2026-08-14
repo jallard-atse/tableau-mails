@@ -939,6 +939,16 @@ function pendingAction(label,rowEl,commitFn){
 }
 // Comme les autres écritures : ne jamais laisser une panne réseau remonter en
 // exception, sinon la boucle de classement groupé s'arrête sans rien afficher.
+// Classe aussi les autres mails de la même conversation (TR:, Re:) encore sans
+// catégorie : un fil traité l'est en entier, plus de sosies dans le Backlog.
+async function classerConversation(id,cat){try{
+ const m=await graph('/me/messages/'+encodeURIComponent(id)+'?$select=conversationId');
+ if(!m||!m.conversationId)return 0;
+ const j=await graph("/me/mailFolders/inbox/messages?$filter=conversationId eq '"+m.conversationId.replace(/'/g,"''")+"'&$select=id,categories&$top=50");
+ let n=0;for(const x of (j.value||[])){if(x.id===id)continue;
+  if(x.categories&&x.categories.length)continue;
+  if(await applyCat(x.id,cat,false)){propager(x.id,{cat:cat,classe:true});n++;}}
+ return n;}catch(e){return 0;}}
 async function applyCat(id,cat,markRead){try{const t=await tok();const body={categories:[cat]};if(markRead)body.isRead=true;
  // keepalive : la requête aboutit même si la page se ferme juste après l'envoi.
  const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',keepalive:true,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -2330,7 +2340,10 @@ function wireCategorize(){
   const prev=e.target.closest('.prev');if(prev){e.preventDefault();openPreview(prev.getAttribute('data-id'));return;}
   const ap=e.target.closest('.apply');if(ap){const id=ap.getAttribute('data-id');const it=ap.closest('.uitem, .item');const sel=(it&&it.querySelector('.catsel'))||document.querySelector('.catsel[data-id="'+cssEsc(id)+'"]');const cat=sel&&sel.value.trim();if(!cat){toast('Choisissez une catégorie',false);return;}const sender=it?it.getAttribute('data-sender'):'';const subj=it?(it.getAttribute('data-subj')||((it.querySelector('.ub b')||{}).textContent||'')):'';const filing=!!(it&&it.getAttribute('data-filing')==='1');
    // Balayage du backlog et publicités : classement direct, sans exigence de lecture.
-   if(filing){pendingAction('Classé en « '+cat+' »',it,async()=>{const ok=await applyCat(id,cat,false);if(ok){rememberCat(sender,cat,subj,corpsConnu(id));propager(id,{cat:cat,classe:true});}return ok;});return;}
+   if(filing){pendingAction('Classé en « '+cat+' »',it,async()=>{const ok=await applyCat(id,cat,false);
+     if(ok){rememberCat(sender,cat,subj,corpsConnu(id));propager(id,{cat:cat,classe:true});
+       classerConversation(id,cat).then(n=>{if(n)toast(n+' autre(s) mail(s) de la même conversation classé(s) aussi ✔',true);});}
+     return ok;});return;}
    // Partout ailleurs — à trier, sans réponse > 48 h, demandes de RDV, dossiers, veille —
    // la même règle s'applique : le mail doit être lu, le bouton ○ suffit, sans l'ouvrir.
    {const rd=it&&it.querySelector('.qread');
