@@ -2124,10 +2124,25 @@ async function openPreview(id){
   // Récupère la LISTE des pièces jointes (léger, sans le contenu), puis n'intègre que les images « inline »
   if(j.hasAttachments){try{const at=await graph('/me/messages/'+encodeURIComponent(id)+'/attachments?$select=id,name,contentType,size,isInline');
     atts=at.value||[];
-    const inl=atts.filter(a=>a.isInline&&/image\//i.test(a.contentType||''));
-    const map={};
-    for(const a of inl){try{const full=await graph('/me/messages/'+encodeURIComponent(id)+'/attachments/'+encodeURIComponent(a.id));if(full&&full.contentBytes&&full.contentId)map[full.contentId.replace(/[<>]/g,'')]='data:'+(full.contentType||a.contentType||'image/png')+';base64,'+full.contentBytes;}catch(e){}}
-    bodyHtml=bodyHtml.replace(/src\s*=\s*(["'])cid:([^"']+)\1/gi,(mm,q,cid)=>{const k=decodeURIComponent(cid).replace(/[<>]/g,'');return map[k]?('src='+q+map[k]+q):mm;});
+    // Résolution renforcée des images intégrées : toutes les images jointes sont
+    // candidates (certains logiciels n'étiquettent pas « inline »), et la
+    // correspondance se fait par identifiant OU par nom de fichier, en souplesse.
+    if(/src\s*=\s*["']cid:/i.test(bodyHtml)){
+    const inl=atts.filter(a=>(/image\//i.test(a.contentType||'')||/\.(png|jpe?g|gif|bmp|webp)$/i.test(a.name||''))&&(a.size||0)<3*1024*1024).slice(0,12);
+    const map={},parNom={};
+    for(const a of inl){try{const full=await graph('/me/messages/'+encodeURIComponent(id)+'/attachments/'+encodeURIComponent(a.id));
+      if(full&&full.contentBytes){const uri='data:'+(full.contentType||a.contentType||'image/png')+';base64,'+full.contentBytes;
+        if(full.contentId)map[full.contentId.replace(/[<>]/g,'')]=uri;
+        if(full.name)parNom[String(full.name).toLowerCase()]=uri;}}catch(e){}}
+    bodyHtml=bodyHtml.replace(/src\s*=\s*(["'])cid:([^"']+)\1/gi,(mm,q,cid)=>{
+      const k=decodeURIComponent(cid).replace(/[<>]/g,'');
+      let u=map[k];
+      if(!u){const kk=Object.keys(map).find(x=>x.indexOf(k)>=0||k.indexOf(x)>=0);if(kk)u=map[kk];}
+      if(!u){const base=(k.split('@')[0]||'').toLowerCase();
+        if(base){u=parNom[base];
+          if(!u){const nn=Object.keys(parNom).find(n=>n.indexOf(base)>=0||base.indexOf(n.replace(/\.[a-z]+$/,''))>=0);if(nn)u=parNom[nn];}}}
+      return u?('src='+q+u+q):mm;});
+    }
   }catch(e){}}
   // Images à chargement différé (newsletters) : réinjecte la vraie adresse cachée
   bodyHtml=bodyHtml.replace(/<img\b[^>]*>/gi,tag=>{const m=tag.match(/\bdata-(?:src|original|lazy-src|echo)\s*=\s*(["'])(.*?)\1/i);if(!m||!m[2]||/^cid:/i.test(m[2]))return tag;return /\ssrc\s*=/.test(tag)?tag.replace(/\ssrc\s*=\s*(["']).*?\1/i,' src="'+m[2]+'"'):tag.replace(/<img\b/i,'<img src="'+m[2]+'"');});
@@ -4229,6 +4244,15 @@ function syncToggle(){SYNC_ON=!SYNC_ON;try{localStorage.setItem('atse_sync',SYNC
  const b=document.getElementById('syncbtn');if(b){b.textContent=SYNC_ON?'🔄 Synchro auto':'⏸ Synchro en pause';b.classList.toggle('on',SYNC_ON);}
  syncStart();toast(SYNC_ON?'Synchronisation automatique activée (toutes les 90 s)':'Synchronisation automatique en pause',true);
  if(SYNC_ON)syncTick();}
+// À zéro, la tuile « Backlog 2026 » et son encart s'effacent d'eux-mêmes ;
+// ils réapparaissent si un balayage retrouve des mails non catégorisés.
+function majBacklogVisibilite(){try{
+ const zero=_lsGet('backlogZero')==='1';
+ const ku=document.getElementById('k-uncat');const tuile=ku&&ku.closest('.kpi');
+ if(tuile)tuile.style.display=zero?'none':'';
+ const bx=document.getElementById('uncat2');const carte=bx&&bx.closest('.card');
+ if(carte)carte.style.display=zero?'none':'';
+}catch(e){}}
 var BACKLOG_LOADED=false;
 async function loadBacklog(){
  if(BACKLOG_LOADED)return;BACKLOG_LOADED=true;
@@ -4242,6 +4266,7 @@ async function loadBacklog(){
   const k2=Object.keys(by2).sort((a,b)=>by2[b].length-by2[a].length);
   document.getElementById('uncat2-count').textContent=u2.length?('· '+u2.length+(m60.length>=8000?' (analyse partielle)':'')):'';
   {const ku=document.getElementById('k-uncat');if(ku)ku.textContent=u2.length;}
+  _lsSet('backlogZero',u2.length?'0':'1');majBacklogVisibilite();
   const aiBtn='<button class="minibtn aicat" title="Utilise l\'IA + vos habitudes pour remplir les catégories encore vides ci-dessous">🧠 Pré-catégoriser le reste avec l\'IA</button>';
   box.innerHTML=u2.length?(aiBtn+k2.map(g=>{const list=by2[g];const real=(REALCAT[g]&&MASTERCATS.indexOf(REALCAT[g])>=0)?REALCAT[g]:(MASTERCATS.indexOf(g)>=0?g:'');return '<details class="grp"'+og(g,false)+'><div class="bar"></div><summary>'+esc(g)+' <span class="badge">'+list.length+'</span></summary><div class="inner">'+(real?'<button class="minibtn batch" data-batch="'+esc(real)+'" data-ids="'+list.map(m=>esc(m.id)).join('|')+'">Tout classer en « '+esc(real)+' »</button>':'')+list.slice(0,60).map(m=>richRow(m,{filing:true})).join('')+'</div></details>';}).join('')):'<div class="sub">Tout est catégorisé depuis le 1er janvier 2026. 👌</div>';
  }catch(e){box.innerHTML='<div class="err">'+esc(e.message)+'</div>';BACKLOG_LOADED=false;}}
@@ -4669,6 +4694,7 @@ async function render(){
  // Réglages partagés : lecture OneDrive (4 s maximum, sans bloquer l'affichage au-delà)
  try{await Promise.race([regPull(),new Promise(r=>setTimeout(r,4000))]);}catch(e){}
  regWire();
+ try{majBacklogVisibilite();}catch(e){}
  // 1) affichage immédiat à partir du dernier état connu (aucun appel réseau)
  try{const snap=await cacheGet();if(snap)await loadData(snap);}catch(e){}
  // 2) actualisation réelle depuis Microsoft 365, en arrière-plan
