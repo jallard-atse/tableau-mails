@@ -402,6 +402,89 @@ mark{background:#fff3a8;color:inherit;border-radius:3px;padding:0 2px}
 .hidden{display:none!important}
 @media print{.toolbar,#reload,#out,#print,header .sub{display:none!important}.grp .inner{display:block!important}details{open:true}body{background:#fff}.card{break-inside:avoid}}
 </style>
+<style>
+/* ===== Habillage « application » ATSE — surcouche visuelle (14/08/2026) =====
+   Palette : jaune signature #F5CB00 (élément actif), bleu #257ABF (actions),
+   anthracite #333 (bandeau), cartes blanches. Modifier ICI, pas la feuille d'origine. */
+:root{--bg:#f2f3f6;--card:#ffffff;--surface:#ffffff;--surface2:#e9edf3;--line:#e3e8ef;
+ --accent:#257ABF;--chip:#eef2f7;
+ --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 14px rgba(16,24,40,.07)}
+body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.card{border-radius:16px;border-color:var(--line)}
+.card h2{font-size:14.5px}
+/* Onglets : barre d'application, l'actif en jaune signature */
+.tabs{gap:6px;padding:8px 0;background:rgba(242,243,246,.94);border-bottom:1px solid var(--line)}
+.tab{border-radius:999px;padding:9px 16px;background:#fff;border-color:var(--line)}
+.tab:hover{border-color:#c9d4e0;color:var(--ink)}
+.tab.on{background:var(--yellow);border-color:var(--yellow);color:#1a1a1a;font-weight:700;box-shadow:0 2px 8px rgba(245,203,0,.35)}
+/* Compteurs */
+.kpi{background:#fff;border-radius:14px;border-left:4px solid #c9d4e0}
+.kpi .n{font-size:30px}
+.kpi.alert{border-left-color:var(--red)}
+.kpi.warn{border-left-color:#e65100}
+/* Boutons : hiérarchie nette (bleu = action, blanc = secondaire, anthracite = filtre actif) */
+.minibtn{background:var(--accent);border-radius:9px;padding:8px 14px;font-size:12.5px;box-shadow:0 1px 2px rgba(16,24,40,.15)}
+.minibtn:hover{background:#1C6098}
+.minibtn:active{transform:translateY(1px)}
+.minibtn.batch{background:var(--green)}
+.qa{border-radius:8px;padding:6px 10px;min-height:30px;background:#fff;color:#1C6098;border-color:#cfdcea;font-weight:600}
+.qa:hover{background:#e8f2fb;border-color:var(--accent)}
+.tgl{border-radius:999px;padding:6px 12px;background:#fff}
+.tgl:hover{border-color:#c9d4e0}
+.uncbar .tgl.on,.tgl.on{background:var(--anthracite);border-color:var(--anthracite);color:#fff}
+button.ghost{border-radius:9px;padding:8px 13px;min-height:34px}
+.mbar button.ghost,.mbar a.ghost{background:#fff;border:1px solid var(--line);box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.mbar button.ghost:hover,.mbar a.ghost:hover{border-color:var(--accent);color:#1C6098}
+header.top .ghost{border-radius:9px}
+header.top .ghost:hover{background:rgba(255,255,255,.18)}
+/* Lignes de mails : aérées, survol visible */
+.item,.uitem{border-radius:10px;padding:9px 8px;transition:background .12s}
+.item:hover,.uitem:hover{background:#f4f7fb}
+/* Champs de saisie */
+input,select,textarea{font-family:inherit}
+.catsel,#filter,textarea,input[type=date],input[type=time],input[type=text]{background:#fff;border:1px solid #cfd8e3;border-radius:9px;padding:7px 10px}
+.catsel:focus,#filter:focus,textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,122,191,.15)}
+/* Confirmations */
+.toast,.utoast{border-left:4px solid var(--yellow);border-radius:12px}
+/* Groupes repliables */
+.grp{border-radius:12px}
+.grp>summary:hover{background:#f4f7fb}
+/* Barre de défilement discrète */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#c9d1dc;border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#aeb9c7}
+/* Tactile : cibles plus grandes sur iPhone / iPad */
+@media(max-width:860px){
+ .qa{min-height:38px;padding:8px 12px;font-size:13px}
+ .minibtn{min-height:40px;padding:10px 16px;font-size:13.5px}
+ button.ghost{min-height:40px}
+ .tab{padding:10px 16px;font-size:14px}
+ .catsel,input[type=date],input[type=time]{min-height:38px}
+}
+/* ---- Mode sombre (bascule automatique le soir, forçable via ◐ Thème) ---- */
+body.sombre{--bg:#14171c;--card:#1d2229;--surface:#1d2229;--surface2:#262c35;--ink:#e8eaee;--muted:#9aa4b1;--line:#2c333d;--chip:#262c35;--shadow:none;color-scheme:dark}
+body.sombre .tabs{background:rgba(20,23,28,.94);border-bottom-color:#2c333d}
+body.sombre .tab{background:#1d2229;border-color:#2c333d;color:#9aa4b1}
+body.sombre .tab.on{background:var(--yellow);border-color:var(--yellow);color:#1a1a1a}
+body.sombre .qa{background:#1d2229;color:#7db3e0;border-color:#31465a}
+body.sombre .qa:hover{background:#22303f}
+body.sombre .tgl{background:#1d2229;color:#9aa4b1}
+body.sombre .kpi{background:#1d2229}
+body.sombre .item:hover,body.sombre .uitem:hover,body.sombre .grp>summary:hover{background:#232933}
+body.sombre .catsel,body.sombre #filter,body.sombre textarea,body.sombre input[type=date],body.sombre input[type=time],body.sombre input[type=text]{background:#161a20;border-color:#313945;color:var(--ink)}
+body.sombre .modal-card{background:#1d2229}
+body.sombre .mbar button.ghost,body.sombre .mbar a.ghost{background:#1d2229;color:var(--ink)}
+body.sombre ::-webkit-scrollbar-thumb{background:#3a434f;border-color:#14171c}
+/* ---- Densité compacte (par défaut sur PC : plus de mails à l'écran) ---- */
+body.dense{font-size:13px}
+body.dense .item,body.dense .uitem{padding:4px 6px}
+body.dense .card{padding:10px;margin-bottom:10px}
+body.dense .kpi{padding:9px 12px}
+body.dense .kpi .n{font-size:24px}
+body.dense .qa{min-height:26px;padding:3px 8px}
+body.dense .tab{padding:7px 13px}
+body.dense .card h2{font-size:13.5px;margin-bottom:6px}
+</style>
 </head>
 <body>
 <script>
@@ -843,17 +926,28 @@ function pendingAction(label,rowEl,commitFn){
  const iv=setInterval(()=>{left--;if(left>0)draw();},1000);
  const to=setTimeout(commit,10000);
  const self={commit};PENDING=self;draw();
+ // Filet de sécurité : si la page se ferme ou passe en arrière-plan (veille iPhone,
+ // changement d'application) avant la fin du délai d'annulation, l'action est
+ // engagée immédiatement au lieu d'être perdue. Sans cela, la ligne disparaissait
+ // de l'écran alors qu'Outlook n'avait jamais reçu le classement — et le mail
+ // « réapparaissait » sur les autres appareils.
+ if(!window.__pendingFlush){window.__pendingFlush=true;
+  const flush=()=>{try{if(PENDING)PENDING.commit();}catch(e){}};
+  window.addEventListener('pagehide',flush);
+  window.addEventListener('beforeunload',flush);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush();});}
 }
 // Comme les autres écritures : ne jamais laisser une panne réseau remonter en
 // exception, sinon la boucle de classement groupé s'arrête sans rien afficher.
 async function applyCat(id,cat,markRead){try{const t=await tok();const body={categories:[cat]};if(markRead)body.isRead=true;
- const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+ // keepalive : la requête aboutit même si la page se ferme juste après l'envoi.
+ const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',keepalive:true,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
  return r.ok;}catch(e){return false;}}
 const OUTLOOK_COLORS=[['Rouge','preset0','#e74856'],['Orange','preset1','#f7630c'],['Jaune','preset3','#ffc83d'],['Vert','preset4','#57a300'],['Turquoise','preset5','#00b7c3'],['Bleu','preset7','#0078d7'],['Violet','preset8','#8764b8'],['Rose','preset9','#c239b3'],['Gris','preset12','#93989a'],['Noir','preset14','#4a4a4a']];
 async function createMasterCat(name,color){try{const t=await tok();const r=await fetch('https://graph.microsoft.com/v1.0/me/outlook/masterCategories',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({displayName:name,color:color})});if(r.ok||r.status===409){if(MASTERCATS.indexOf(name)<0){MASTERCATS.push(name);MASTERCATS.sort((a,b)=>a.localeCompare(b,'fr'));refreshCatlist();}return true;}return false;}catch(e){return false;}}
 function refreshCatlist(){}
 function firstName(who){const n=(who||'').split(/[\s<]/)[0];return /@/.test(n)?'':n;}
-async function patchMsg(id,body){try{const t=await tok();const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});return r.ok;}catch(e){return false;}}
+async function patchMsg(id,body){try{const t=await tok();const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',keepalive:true,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});return r.ok;}catch(e){return false;}}
 async function deleteMsg(id){try{const t=await tok();const r=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'DELETE',headers:{Authorization:'Bearer '+t}});return r.ok;}catch(e){return false;}}
 async function setOther(id,addr){try{const t=await tok();
  const r1=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id),{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({inferenceClassification:'other'})});
@@ -1149,12 +1243,27 @@ async function joindreAEvenement(evid,a){
       name:a.name||'piece-jointe',contentType:a.contentType||'application/octet-stream',
       contentBytes:a.contentBytes,isInline:false})});
   return r.ok;}catch(e){return false;}}
+// Grosses pièces (plans…) : envoi par tranches via une session de téléversement.
+async function joindreAEvenementGros(evid,a){
+ try{const t=await tok();
+  const sresp=await fetch('https://graph.microsoft.com/v1.0/me/events/'+encodeURIComponent(evid)+'/attachments/createUploadSession',
+   {method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},
+    body:JSON.stringify({AttachmentItem:{attachmentType:'file',name:a.name||'piece-jointe',size:a.size||0,contentType:a.contentType||'application/octet-stream'}})});
+  if(!sresp.ok)return false;const sess=await sresp.json();
+  const blob=b64ToBlob(a.contentBytes,a.contentType||'application/octet-stream');
+  const CH=3932160;let pos=0;              // 3,75 Mo, multiple de 320 Kio
+  while(pos<blob.size){const end=Math.min(pos+CH,blob.size);
+   const r=await fetch(sess.uploadUrl,{method:'PUT',headers:{'Content-Range':'bytes '+pos+'-'+(end-1)+'/'+blob.size},body:blob.slice(pos,end)});
+   if(!(r.ok||r.status===202))return false;pos=end;}
+  return true;}catch(e){return false;}}
 // Corps du mail d'origine, mis en forme pour la note du rendez-vous.
 function blocMailPourRdv(m){
  if(!m||!m.id)return '';
  const lien=m.web||('https://outlook.office.com/mail/deeplink/read/'+encodeURIComponent(m.id));
+ let html=(m.corpsHtml||'').trim();
+ if(html.length>150000)html='';          // corps démesuré : on retombe sur le texte
  let txt=(m.corps||'').replace(/\r/g,'').trim();
- if(txt.length>4000)txt=txt.slice(0,4000)+'\n[…]';
+ if(txt.length>8000)txt=txt.slice(0,8000)+'\n[…]';
  return '<hr style="border:0;border-top:1px solid #dfe4ea;margin:14px 0">'
   +'<div style="font-family:Calibri,Arial,sans-serif;font-size:11pt">'
   +'<p style="margin:0 0 6px"><b>Mail d\'origine</b></p>'
@@ -1162,18 +1271,28 @@ function blocMailPourRdv(m){
   +(m.who?('<p style="margin:0 0 2px"><b>De :</b> '+esc(m.who)+'</p>'):'')
   +(m.date?('<p style="margin:0 0 2px"><b>Reçu le :</b> '+esc(m.date)+'</p>'):'')
   +'<p style="margin:6px 0"><a href="'+esc(lien)+'">Ouvrir le message dans Outlook</a></p>'
-  +(txt?('<div style="margin-top:8px;padding-left:10px;border-left:3px solid #dfe4ea;white-space:pre-wrap">'
-        +esc(txt)+'</div>'):'')
+  +(html?('<div style="margin-top:8px;padding-left:10px;border-left:3px solid #dfe4ea">'+html+'</div>')
+    :(txt?('<div style="margin-top:8px;padding-left:10px;border-left:3px solid #dfe4ea;white-space:pre-wrap">'
+        +esc(txt)+'</div>'):''))
   +'</div>';}
 async function creerEvenement(o){
- try{const t=await tok();
+ try{
+  // Corps complet du mail récupéré au besoin (mail non ouvert au préalable) :
+  // le rendez-vous reprend TOUT le message, pas seulement l'extrait connu.
+  if(o.mail&&o.mail.id&&!o.mail.corpsHtml&&!(o.mail.corps&&o.mail.corps.length>60)){
+    try{const jm=await graph('/me/messages/'+encodeURIComponent(o.mail.id)+'?$select=body');
+      if(jm&&jm.body){if((jm.body.contentType||'').toLowerCase()==='html')o.mail.corpsHtml=jm.body.content||'';
+        else o.mail.corps=jm.body.content||'';}}catch(e){}}
+  const t=await tok();
   const note=esc(o.note||'').replace(/\n/g,'<br>');
   const corps={subject:o.objet,
     start:{dateTime:o.debut,timeZone:TZ},end:{dateTime:o.fin,timeZone:TZ},
     body:{contentType:'HTML',content:'<div style="font-family:Calibri,Arial,sans-serif;font-size:11pt">'
       +note+'</div>'+blocMailPourRdv(o.mail)}};
   if(o.lieu)corps.location={displayName:o.lieu};
-  if(o.invite)corps.attendees=[{emailAddress:{address:o.invite},type:'required'}];
+  {const inv=[];if(o.invite)inv.push(String(o.invite).toLowerCase());
+   (o.invites||[]).forEach(a=>{a=String(a||'').trim().toLowerCase();if(a&&/@/.test(a)&&inv.indexOf(a)<0)inv.push(a);});
+   if(inv.length)corps.attendees=inv.map(a=>({emailAddress:{address:a},type:'required'}));}
   const r=await fetch('https://graph.microsoft.com/v1.0/me/events',
     {method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(corps)});
   if(!r.ok)return null;
@@ -1184,8 +1303,9 @@ async function creerEvenement(o){
       let n=0;
       for(const a of pj){
         if(a.isInline)continue;
-        if((a.size||0)>3*1024*1024)continue;   // au-delà de 3 Mo, Graph exige un envoi en plusieurs fois
-        if(await joindreAEvenement(ev.id,a))n++;}
+        if((a.size||0)>25*1024*1024)continue;  // au-delà de 25 Mo : à joindre à la main
+        const okj=(a.size||0)>3*1024*1024?await joindreAEvenementGros(ev.id,a):await joindreAEvenement(ev.id,a);
+        if(okj)n++;}
       ev._pieces=n;ev._piecesTotal=pj.filter(a=>!a.isInline).length;}catch(e){}}
   return ev;}catch(e){return null;}}
 async function setFlagDue(mid,due){const body=due?{flag:{flagStatus:'flagged',dueDateTime:{dateTime:due+'T17:00:00.0000000',timeZone:TZ},startDateTime:{dateTime:isoDay(new Date())+'T08:00:00.0000000',timeZone:TZ}}}:{flag:{flagStatus:'flagged'}};
@@ -1398,7 +1518,21 @@ function txt2html(t){
    .replace(/\[\[image:([a-z0-9]+)\]\]/gi,'<img src="cid:$1" style="max-width:100%;height:auto;display:block;margin:8px 0">')
    .replace(/\n/g,'<br>');}
 function parseAddrs(s){return (s||'').split(/[;,]/).map(x=>x.trim()).filter(Boolean).map(a=>({emailAddress:{address:a.replace(/^.*<|>.*$/g,'').trim()}}));}
-async function sendReply(id,mode,text,sigKey,toStr,ccStr){
+// ---------- Envoi différé : Exchange retient le mail jusqu'à l'heure choisie ----------
+// (propriété Outlook « heure d'envoi différé » : le mail attend dans la Boîte d'envoi,
+// et reste supprimable jusqu'au dernier moment pour annuler l'envoi.)
+function prochainOuvre730(){const d=new Date();
+ do{d.setDate(d.getDate()+1);}while(d.getDay()===0||d.getDay()===6);
+ d.setHours(7,30,0,0);return d;}
+function horsHorairesTravail(){const n=new Date();const j=n.getDay(),h=n.getHours();
+ return j===0||j===6||h>=20||h<7;}
+function libelleDiff(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+d.getHours()+' h '+String(d.getMinutes()).padStart(2,'0');}
+function proposerDiffere(){ // week-end ou soir : on propose de différer au prochain jour ouvré
+ if(!horsHorairesTravail())return null;
+ const p=prochainOuvre730();
+ return confirm('Vous traitez vos mails hors horaires de travail.\n\nOK : l\'envoi partira '+libelleDiff(p)+' — vos collaborateurs ne seront pas dérangés.\nAnnuler : envoyer tout de suite.')?p:null;}
+function propDiffere(quand){return [{id:'SystemTime 0x3FEF',value:new Date(quand).toISOString()}];}
+async function sendReply(id,mode,text,sigKey,toStr,ccStr,quand){
  const t=await tok();
  const ep=mode==='forward'?'createForward':(mode==='replyAll'?'createReplyAll':'createReply');
  const r1=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(id)+'/'+ep,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({})});
@@ -1410,6 +1544,7 @@ async function sendReply(id,mode,text,sigKey,toStr,ccStr){
  for(const a of ATT){if(a.asLink){const l=await attLink(a);if(l)extra+='<br>📎 <a href="'+esc(l)+'">'+esc(a.name)+'</a>';else files.push(a);}else files.push(a);}
  const head='<div style="font-family:Calibri,Arial,sans-serif;font-size:11pt">'+txt2html(text)+(extra?('<br><br><b>Documents partagés :</b>'+extra):'')+(sg?('<br><br>'+sg):'')+'</div><br>';
  const patch={body:{contentType:'HTML',content:head+((d.body&&d.body.content)||'')}};
+ if(quand)patch.singleValueExtendedProperties=propDiffere(quand);
  const to=parseAddrs(toStr);const cc=parseAddrs(ccStr);
  if(to.length)patch.toRecipients=to; if(ccStr!=null)patch.ccRecipients=cc;
  const r2=await fetch('https://graph.microsoft.com/v1.0/me/messages/'+encodeURIComponent(d.id),{method:'PATCH',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(patch)});
@@ -1427,7 +1562,7 @@ async function renderBlocked(){const el=document.getElementById('blocked');if(!e
 // Lecture SANS invite : pour les usages où l'IA n'est qu'un confort. Une fonction
 // principale ne doit jamais être bloquée par une demande de clé.
 function getKeySilent(){try{return (localStorage.getItem('anthropicKey')||'').trim();}catch(e){return '';}}
-function getKey(){let k=localStorage.getItem('anthropicKey');if(!k){k=prompt('Collez votre clé API Anthropic (commence par sk-ant-...). Elle est stockée uniquement sur votre Mac.');if(k){k=k.trim();localStorage.setItem('anthropicKey',k);}}return k;}
+function getKey(){let k=localStorage.getItem('anthropicKey');if(!k){k=prompt('Collez votre clé API Anthropic (commence par sk-ant-...). Elle sera synchronisée entre vos appareils via votre OneDrive.');if(k){k=k.trim();localStorage.setItem('anthropicKey',k);try{regPush();}catch(e){}}}return k;}
 async function aiCall(prompt,maxTokens){const key=getKey();if(!key)throw new Error('Clé API manquante — cliquez à nouveau et collez votre clé (sk-ant-…)');
  let r,t;try{r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','content-type':'application/json'},body:JSON.stringify({model:'claude-sonnet-5',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})});t=await r.text();}catch(e){throw new Error('Connexion à l\'API impossible ('+e.message+')');}
  let j={};try{j=JSON.parse(t);}catch(e){}
@@ -1741,6 +1876,8 @@ function attIcon(t){t=(t||'').toLowerCase();if(t.indexOf('pdf')>=0)return'📕';
 // Le fichier part directement de Microsoft 365 vers le dossier choisi, sans passer
 // par les téléchargements de l'appareil. Fonctionne sur Mac, iPad et iPhone.
 const SP_HOST='atsebordes24.sharepoint.com';
+function _lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function _lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 let SP_SITE_ID=null;
 async function spSiteId(){if(SP_SITE_ID)return SP_SITE_ID;const j=await graph('/sites/'+SP_HOST+':/');SP_SITE_ID=j.id;return SP_SITE_ID;}
 function encPath(p){return (p||'').split('/').filter(Boolean).map(encodeURIComponent).join('/');}
@@ -1777,22 +1914,51 @@ function openCloudPicker(box,fileName,cb){
  const d=cloudDests();
  const el=document.createElement('div');el.id='cloudpick';
  el.style.cssText='margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff';
- el.innerHTML='<div class="atth">☁ Enregistrer « '+esc(fileName)+' » vers…</div>'
+ el.innerHTML='<div class="atth">☁ Enregistrer « '+esc(fileName)+' » vers…</div>'
   +d.map((x,i)=>'<button class="qa cp-go" data-i="'+i+'" style="margin:3px 4px 3px 0">'+esc(x.label)+'</button>').join('')
-  +'<button class="qa" id="cp-add" style="margin:3px 4px 3px 0">＋ Ajouter une destination</button>'
+  +'<button class="qa" id="cp-br-od" style="margin:3px 4px 3px 0">📂 Parcourir OneDrive…</button>'
+  +'<button class="qa" id="cp-br-sp" style="margin:3px 4px 3px 0">📂 Parcourir SharePoint…</button>'
   +'<button class="qa" id="cp-close" style="margin:3px 0">Annuler</button>'
-  +'<div class="sub">Envoi direct depuis Microsoft 365 vers le dossier choisi ; un dossier absent est créé automatiquement. En cas de fichier déjà présent, une copie numérotée est ajoutée.</div>';
+  +'<div class="sub">Envoi direct depuis Microsoft 365 vers le dossier choisi. En cas de fichier déjà présent, une copie numérotée est ajoutée.</div>';
  box.appendChild(el);
  el.querySelectorAll('.cp-go').forEach(b=>b.onclick=()=>{el.remove();cb(d[+b.getAttribute('data-i')]);});
  el.querySelector('#cp-close').onclick=()=>el.remove();
- el.querySelector('#cp-add').onclick=()=>{
-  const k=(prompt('Destination : tapez OD pour OneDrive, SP pour SharePoint (Documents partagés)','SP')||'').trim().toUpperCase();
-  if(k!=='OD'&&k!=='SP')return;
-  const p=(prompt('Chemin du dossier (ex. 06.SERVICE/DEVIS ou 00.TELECHARGEMENTS)','')||'').trim().replace(/^\/+|\/+$/g,'');
-  const lbl=(prompt('Nom affiché pour cette destination',(k==='OD'?'OneDrive — ':'SharePoint — ')+(p||'racine'))||'').trim();
-  if(!lbl)return;
-  const list=cloudDests();list.push({label:lbl,kind:k==='OD'?'od':'sp',path:p});saveCloudDests(list);
-  openCloudPicker(box,fileName,cb);};}
+ el.querySelector('#cp-br-od').onclick=()=>openCloudBrowser(box,fileName,'od',_lsGet('cloudLast_od')||'',cb);
+ el.querySelector('#cp-br-sp').onclick=()=>openCloudBrowser(box,fileName,'sp',_lsGet('cloudLast_sp')||'',cb);}
+// Parcours réel des dossiers OneDrive / SharePoint : navigation dossier par dossier,
+// « Enregistrer ici » au niveau voulu, « ★ Mémoriser » pour l'ajouter aux raccourcis.
+async function listFolders(kind,path){
+ const prefix=await drivePrefix(kind);
+ const p=path?('/root:/'+encPath(path)+':/children'):'/root/children';
+ const j=await graph(prefix+p+'?$select=name,folder&$top=200');
+ return (j.value||[]).filter(x=>x.folder).map(x=>x.name).sort((a,b)=>a.localeCompare(b,'fr'));}
+function openCloudBrowser(box,fileName,kind,path,cb){
+ const old=box.querySelector('#cloudpick');if(old)old.remove();
+ const el=document.createElement('div');el.id='cloudpick';
+ el.style.cssText='margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff';
+ const titre=(kind==='sp'?'SharePoint (Documents partagés)':'OneDrive');
+ el.innerHTML='<div class="atth">📂 '+titre+' — /'+esc(path||'')+'</div><div class="sub">Chargement des dossiers…</div>';
+ box.appendChild(el);
+ listFolders(kind,path).then(names=>{
+  const dest={label:titre+' — '+(path||'racine'),kind:kind,path:path};
+  el.innerHTML='<div class="atth">📂 '+titre+' — /'+esc(path||'')+'</div>'
+   +'<div style="margin:6px 0"><button class="qa" id="cb-here" style="font-weight:700">💾 Enregistrer « '+esc(fileName)+' » ici</button> '
+   +'<button class="qa" id="cb-star" title="Ajouter ce dossier aux raccourcis proposés en premier">★ Mémoriser</button> '
+   +(path?'<button class="qa" id="cb-up">⬆ Remonter</button> ':'')
+   +'<button class="qa" id="cb-back">‹ Raccourcis</button> '
+   +'<button class="qa" id="cb-close">Annuler</button></div>'
+   +'<div style="max-height:38vh;overflow:auto;border-top:1px solid var(--line)">'
+   +(names.length?names.map(n=>'<button class="qa cb-go" data-n="'+esc(n)+'" style="display:block;width:100%;text-align:left;margin:3px 0">📁 '+esc(n)+'</button>').join(''):'<div class="sub" style="padding:6px 0">Aucun sous-dossier ici.</div>')
+   +'</div>';
+  el.querySelector('#cb-here').onclick=()=>{_lsSet('cloudLast_'+kind,path);el.remove();cb(dest);};
+  el.querySelector('#cb-star').onclick=()=>{const list=cloudDests();
+    if(list.some(x=>x.kind===kind&&x.path===path)){toast('Déjà dans les raccourcis',false);return;}
+    list.push(dest);saveCloudDests(list);toast('Raccourci ajouté : '+dest.label,true);};
+  if(path){el.querySelector('#cb-up').onclick=()=>openCloudBrowser(box,fileName,kind,path.split('/').slice(0,-1).join('/'),cb);}
+  el.querySelector('#cb-back').onclick=()=>openCloudPicker(box,fileName,cb);
+  el.querySelector('#cb-close').onclick=()=>el.remove();
+  el.querySelectorAll('.cb-go').forEach(b=>b.onclick=()=>openCloudBrowser(box,fileName,kind,(path?path+'/':'')+b.getAttribute('data-n'),cb));
+ }).catch(e=>{el.innerHTML='<div class="atth">📂 '+titre+'</div><div class="err">Lecture impossible : '+esc(e.message)+'</div>';});}
 
 function renderAttachments(msgId,atts){const box=document.getElementById('mk-att');if(!box)return;
  // Vraies pièces jointes = tout ce qui a un nom, sauf les images intégrées (déjà dans le corps)
@@ -1922,7 +2088,7 @@ async function openPreview(id){
   document.getElementById('modal-sub').textContent=who+(dt?(' · '+new Date(dt).toLocaleString('fr-FR')):'');
   const types=['Accuser réception','Accepter','Décliner','Demander une précision','Transmettre en interne','Relancer','Proposer un créneau'];
   const fromAddr=(j.from&&j.from.emailAddress&&j.from.emailAddress.address)||'';
-  c.innerHTML='<div class="mbar"><button class="ghost" id="mk-read"></button><button class="ghost" id="mk-flag">⚑ Indicateur</button><button class="ghost" id="mk-rename">✏️ Renommer l’objet</button><button class="ghost" id="mk-sum" style="background:#eef0ff">🧾 Résumer + actions</button><button class="ghost" id="mk-task" style="background:#e4f5ea" data-subj="'+esc(j.subject||'')+'" data-id="'+id+'">✅ En faire une tâche</button><button class="ghost" id="mk-rdv" style="background:#eafaf0">📅 RDV depuis ce mail</button><button class="ghost" id="mk-aff" style="background:#fff4e5">🏗️ Fiche affaire</button><a class="ghost" id="mk-link" target="_blank" rel="noopener" style="background:#e8f4ff;text-decoration:none;display:none">🔗 Ouvrir le lien</a><button class="ghost" id="mk-other">📥 Mettre en « Autres »</button><button class="ghost" id="mk-block" style="color:#b23b3b">🚫 Bloquer l’expéditeur</button><a class="ghost" href="'+esc(j.webLink||'#')+'" target="_blank" style="text-decoration:none">Ouvrir dans Outlook</a></div>'
+  c.innerHTML='<div class="mbar"><button class="ghost" id="mk-read"></button><button class="ghost" id="mk-flag">⚑ Indicateur</button><button class="ghost" id="mk-rename">✏️ Renommer l’objet</button><button class="ghost" id="mk-sum" style="background:#eef0ff">🧾 Résumer + actions</button><button class="ghost" id="mk-task" style="background:#e4f5ea" data-subj="'+esc(j.subject||'')+'" data-id="'+id+'">✅ En faire une tâche</button><button class="ghost" id="mk-rdv" style="background:#eafaf0">📅 RDV depuis ce mail</button><button class="ghost" id="mk-aff" style="background:#fff4e5">🏗️ Fiche affaire</button><a class="ghost" id="mk-link" target="_blank" rel="noopener" style="background:#e8f4ff;text-decoration:none;display:none">🔗 Ouvrir le lien</a>'+(EXPRESS?'<button class="ghost" id="mk-exnext" data-cur="'+id+'" style="background:#fff3bf;font-weight:700">⚡ Suivant</button><button class="ghost" id="mk-exstop" title="Quitter le traitement express">✕ Express</button>':'')+'<button class="ghost" id="mk-other">📥 Mettre en « Autres »</button><button class="ghost" id="mk-block" style="color:#b23b3b">🚫 Bloquer l’expéditeur</button><a class="ghost" href="'+esc(j.webLink||'#')+'" target="_blank" style="text-decoration:none">Ouvrir dans Outlook</a></div>'
    +'<div class="mfbar"><span class="mfl">🔎</span><input id="mf-q" placeholder="Rechercher un mot dans ce mail…" autocomplete="off">'
    +'<button class="qa" id="mf-prev" title="Occurrence précédente (Maj+Entrée)">▲</button>'
    +'<button class="qa" id="mf-next" title="Occurrence suivante (Entrée)">▼</button>'
@@ -1935,7 +2101,7 @@ async function openPreview(id){
    +'<div class="rfield"><label>À</label><input id="r-to" placeholder="Tapez une lettre : vos contacts Outlook sont proposés"></div>'
    +'<div class="rfield"><label>Cc</label><input id="r-cc" placeholder="copies (facultatif)"></div>'
    +'<div class="rrow"><select id="r-type">'+types.map(t=>'<option>'+esc(t)+'</option>').join('')+'</select>'
-   +'<input id="r-kw" placeholder="Mots-clés / orientation (ex : ok mardi 14h, tarif à revoir)"><button class="minibtn" id="r-gen">Générer</button></div>'
+   +'<input id="r-kw" placeholder="Mots-clés / orientation (ex : ok mardi 14h, tarif à revoir)"><button class="minibtn" id="r-gen">Générer</button><button class="minibtn" id="r-slots" title="Insérer deux ou trois créneaux réellement libres de votre agenda">📅 Créneaux</button></div>'
    +'<div class="rrow airow"><span class="ail">✨ Claude</span>'
     +'<select id="r-ton" title="Ton de la réponse">'+Object.keys(TONS).map(k=>'<option value="'+k+'">'+esc(TONS[k].n)+'</option>').join('')+'</select>'
     +'<select id="r-long" title="Longueur"><option value="court">Court</option><option value="moyen" selected>Standard</option><option value="long">Développé</option></select>'
@@ -1947,7 +2113,7 @@ async function openPreview(id){
    +'<textarea id="r-body" rows="9" placeholder="Votre texte. « Générer » = modèle rapide ; « ✨ Claude » = rédaction/correction."></textarea>'
    +'<div class="rrow2"><label style="font-size:12px;color:var(--muted);font-weight:700">Signature</label> <select id="r-sig">'+Object.keys(SIGS).map(k=>'<option value="'+k+'">'+esc(SIGS[k].n)+'</option>').join('')+'</select>'
    +'<button class="qa" id="r-sigedit" title="Définir / modifier ma signature JA">✍️</button>'
-   +'<button class="minibtn sendbtn" id="r-send">📨 Envoyer</button>'
+   +'<button class="minibtn sendbtn" id="r-send">📨 Envoyer</button><button class="qa" id="r-later" title="Choisir l\'heure d\'envoi — le mail attend dans la Boîte d\'envoi Outlook">⏰ Plus tard</button>'
    +'<button class="qa" id="r-draft">Créer un brouillon Outlook</button></div></div>';
   let bodyHtml=(j.body&&j.body.content)||'(vide)';let atts=[];
   // Récupère la LISTE des pièces jointes (léger, sans le contenu), puis n'intègre que les images « inline »
@@ -1963,7 +2129,10 @@ async function openPreview(id){
   // allow-same-origin (sans allow-scripts) : aucun script du mail ne s'exécute,
   // mais la recherche du tableau peut lire et surligner le texte affiché
   const fr=document.createElement('iframe');fr.setAttribute('sandbox','allow-same-origin');fr.setAttribute('referrerpolicy','no-referrer');fr.style.cssText='width:100%;height:'+(window.innerWidth<760?'38vh':'46vh')+';border:1px solid var(--line);border-radius:8px;background:#fff';
-  c.querySelector('.mframe').appendChild(fr);fr.srcdoc=bodyHtml;
+  // « upgrade-insecure-requests » : sur la version en ligne (https), les images de
+  // mails en http étaient bloquées par Safari iPhone/iPad ; cette consigne les
+  // rebascule automatiquement en https.
+  c.querySelector('.mframe').appendChild(fr);fr.srcdoc='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">'+bodyHtml;
   renderAttachments(id,atts);
   // Recherche dans le corps du mail : surlignage et navigation
   {let MK=[],MI=-1;
@@ -2105,10 +2274,32 @@ async function openPreview(id){
      if(!verifAvantEnvoi(b,j.subject||'',toI.value))return;
      const lbl=MODE==='forward'?'Transférer':(MODE==='replyAll'?'Répondre à tous':'Répondre');
      if(!confirm(lbl+' — envoyer maintenant à :\n'+toI.value+(ccI.value.trim()?('\nCc : '+ccI.value):'')+' ?'))return;
-     const old=btn.textContent;btn.disabled=true;btn.textContent='Envoi…';
-     try{await sendReply(id,MODE,b,document.getElementById('r-sig').value,toI.value,ccI.value);toast('Message envoyé ✔',true);closePreview();}
+     const quand=proposerDiffere();
+     const old=btn.textContent;btn.disabled=true;btn.textContent=quand?'Programmation…':'Envoi…';
+     try{await sendReply(id,MODE,b,document.getElementById('r-sig').value,toI.value,ccI.value,quand);
+       toast(quand?('Envoi programmé pour '+libelleDiff(quand)+' ✔ — annulable depuis la Boîte d\'envoi Outlook'):'Message envoyé ✔',true);closePreview();}
      catch(e){toast('Échec de l\'envoi : '+e.message,false);}
-     btn.disabled=false;btn.textContent=old;};}
+     btn.disabled=false;btn.textContent=old;};
+   {const bl=document.getElementById('r-later');
+    if(bl)bl.onclick=async()=>{
+      const b=document.getElementById('r-body').value.trim();
+      if(!b){toast('Rédigez votre message avant l\'envoi',false);return;}
+      if(!toI.value.trim()){toast('Indiquez au moins un destinataire',false);return;}
+      if(!verifAvantEnvoi(b,j.subject||'',toI.value))return;
+      const p1=prochainOuvre730();
+      const rep=prompt('Quand envoyer ?\n1 = '+libelleDiff(p1)+'\n2 = demain à 7 h 30\nOu tapez une date : AAAA-MM-JJ HH:MM','1');
+      if(rep==null)return;let quand=null;const v=rep.trim();
+      if(v==='1')quand=p1;
+      else if(v==='2'){const d2=new Date();d2.setDate(d2.getDate()+1);d2.setHours(7,30,0,0);quand=d2;}
+      else{const m=v.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2})[:h](\d{2})$/);
+        if(m)quand=new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]);}
+      if(!quand||isNaN(quand.getTime())||quand.getTime()<Date.now()+120000){toast('Date invalide ou déjà passée',false);return;}
+      if(!confirm('Programmer l\'envoi pour '+libelleDiff(quand)+' à :\n'+toI.value+' ?'))return;
+      bl.disabled=true;const o2=bl.textContent;bl.textContent='Programmation…';
+      try{await sendReply(id,MODE,b,document.getElementById('r-sig').value,toI.value,ccI.value,quand);
+        toast('Envoi programmé pour '+libelleDiff(quand)+' ✔ — annulable depuis la Boîte d\'envoi Outlook',true);closePreview();}
+      catch(e){toast('Échec : '+e.message,false);}
+      bl.disabled=false;bl.textContent=o2;};}}
  }catch(e){c.innerHTML='<div class="err">'+esc(e.message)+'</div>';}
 }
 function closePreview(){const p=document.getElementById('modal');if(p)p.classList.remove('show');}
@@ -2138,7 +2329,93 @@ var UNCAT_LIST=[],UNCAT_MODE='prio',UNCAT_DIR='desc';
 try{const sv=localStorage.getItem('atse_uncatmode');if(sv==='cat'||sv==='date'||sv==='prio'||sv==='pub')UNCAT_MODE=sv;}catch(e){}
 function catDl(){return '';}  // liste native abandonnée : le sélecteur ▾ la remplace
 function dayLabel(d){const b=new Date();const A=new Date(d.getFullYear(),d.getMonth(),d.getDate());const B=new Date(b.getFullYear(),b.getMonth(),b.getDate());const diff=Math.round((B-A)/86400000);if(diff===0)return "Aujourd'hui";if(diff===1)return 'Hier';return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
+// ---------- Traitement express : les mails à traiter défilent un par un ----------
+var EXPRESS=false,EXPRESS_SKIP={};
+function expressPick(){return (UNCAT_LIST||[]).filter(m=>!dejaTraite(m)).find(m=>!EXPRESS_SKIP[m.id]);}
+function expressStart(){EXPRESS_SKIP={};const m=expressPick();
+ if(!m){toast('Rien à traiter — bravo 👌',true);return;}
+ EXPRESS=true;openPreview(m.id);}
+function expressSuivant(cur){if(cur)EXPRESS_SKIP[cur]=1;const m=expressPick();
+ if(!m){EXPRESS=false;closePreview();toast('Traitement express terminé ✔',true);return;}
+ openPreview(m.id);}
+// ---------- Règles Outlook créées depuis vos habitudes de classement ----------
+async function reglesOutlookUI(btn){
+ let LRN={};try{LRN=JSON.parse(localStorage.getItem('catLearn')||'{}');}catch(e){}
+ const entries=Object.keys(LRN).map(a=>({a:a,c:LRN[a]})).filter(x=>x.a&&x.c&&/@/.test(x.a));
+ if(!entries.length){toast('Aucune habitude apprise pour l’instant',false);return;}
+ const old=btn.textContent;btn.disabled=true;btn.textContent='Lecture des règles…';
+ let deja='';try{const rr=await graph('/me/mailFolders/inbox/messageRules?$top=100');deja=JSON.stringify(rr.value||[]);}catch(e){}
+ btn.disabled=false;btn.textContent=old;
+ const cand=entries.filter(x=>deja.indexOf(x.a)<0).sort((x,y)=>x.a.localeCompare(y.a)).slice(0,40);
+ if(!cand.length){toast('Toutes vos habitudes ont déjà leur règle Outlook 👌',true);return;}
+ const el=document.createElement('div');el.id='rulespop';
+ el.style.cssText='position:fixed;inset:0;background:rgba(20,24,30,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:14px';
+ el.innerHTML='<div style="background:#fff;border-radius:12px;max-width:560px;width:100%;max-height:80vh;overflow:auto;padding:16px">'
+  +'<h3 style="margin:0 0 6px">⚙️ Règles Outlook depuis vos habitudes</h3>'
+  +'<div class="sub" style="margin-bottom:8px">Les mails de ces expéditeurs seront catégorisés par Outlook dès leur arrivée, sur tous vos appareils, même tableau fermé. Décochez ce que vous ne voulez pas.</div>'
+  +cand.map((x,i)=>'<label style="display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid #eee"><input type="checkbox" class="rl" data-i="'+i+'" checked><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(x.a)+'</span><b>'+esc(x.c)+'</b></label>').join('')
+  +'<div style="margin-top:10px;display:flex;gap:8px"><button class="minibtn" id="rl-go">Créer les règles cochées</button><button class="qa" id="rl-close">Fermer</button></div></div>';
+ document.body.appendChild(el);
+ el.querySelector('#rl-close').onclick=()=>el.remove();
+ el.addEventListener('click',e=>{if(e.target===el)el.remove();});
+ el.querySelector('#rl-go').onclick=async function(){this.disabled=true;let n=0,ko=0;
+  const boxes=el.querySelectorAll('.rl');
+  for(const b of boxes){if(!b.checked)continue;const x=cand[+b.getAttribute('data-i')];
+   this.textContent='Création… ('+(n+ko+1)+')';
+   try{const t=await tok();const r=await fetch('https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messageRules',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({displayName:'Tri auto — '+x.a,sequence:60,isEnabled:true,conditions:{senderContains:[x.a]},actions:{assignCategories:[x.c],stopProcessingRules:false}})});
+    if(r.ok)n++;else ko++;}catch(e){ko++;}}
+  toast(n+' règle(s) Outlook créée(s)'+(ko?(' · '+ko+' refusée(s) — quota Outlook probable'):''),n>0);el.remove();};}
+// ---------- Proposer des créneaux libres dans une réponse ----------
+async function insererCreneaux(btn){
+ const ta=document.getElementById('r-body');if(!ta){toast('Ouvrez d’abord la zone de réponse',false);return;}
+ const old=btn.textContent;btn.disabled=true;btn.textContent='…';
+ try{
+  const s=new Date();const e2=new Date(s.getTime()+10*864e5);
+  const evs=await graphAll('/me/calendarView?startDateTime='+s.toISOString()+'&endDateTime='+e2.toISOString()+'&$select=start,end,isAllDay,showAs&$orderby=start/dateTime&$top=100',75);
+  const occ=(evs||[]).filter(e=>!e.isAllDay&&e.showAs!=='free').map(e=>({a:new Date(e.start.dateTime+(String(e.start.dateTime).slice(-1)==='Z'?'':'Z')),b:new Date(e.end.dateTime+(String(e.end.dateTime).slice(-1)==='Z'?'':'Z'))}));
+  const libres=[];
+  for(let j=0;j<10&&libres.length<3;j++){
+   const d=new Date(s.getFullYear(),s.getMonth(),s.getDate()+j);
+   const dow=d.getDay();if(dow===0||dow===6)continue;
+   let pris=false;
+   for(let h=8;h<=17&&!pris;h++){
+    for(const mn of [0,30]){
+     const a=new Date(d.getFullYear(),d.getMonth(),d.getDate(),h,mn);
+     const b=new Date(a.getTime()+3600000);
+     if(a.getTime()<Date.now()+90*60000)continue;
+     if(b.getHours()>18||(b.getHours()===18&&b.getMinutes()>0))continue;
+     if(occ.some(o=>a<o.b&&b>o.a))continue;
+     libres.push(a);pris=true;break;}}}
+  if(!libres.length){toast('Aucun créneau libre trouvé sur 10 jours',false);}
+  else{
+   const f=d=>d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+d.getHours()+' h '+String(d.getMinutes()).padStart(2,'0');
+   const phrase='Je peux vous proposer : '+libres.map(f).join(', ou ')+'. Dites-moi ce qui vous convient le mieux.';
+   const pos=ta.selectionStart!=null?ta.selectionStart:ta.value.length;
+   ta.value=ta.value.slice(0,pos)+(pos&&ta.value.slice(0,pos).slice(-1)!=='\n'?'\n':'')+phrase+ta.value.slice(pos);
+   toast(libres.length+' créneau(x) inséré(s) — vérifiez avant envoi',true);}
+ }catch(e){toast('Lecture de l’agenda impossible : '+e.message,false);}
+ btn.disabled=false;btn.textContent=old;}
+// ---------- « Ma journée » : l'essentiel du matin en un bandeau ----------
+function renderMaJournee(cal){try{
+ if(_lsGet('jourFerme')===isoDay(new Date()))return;
+ const kpis=document.querySelector('.kpis');if(!kpis)return;
+ let el=document.getElementById('majournee');
+ if(!el){el=document.createElement('div');el.id='majournee';
+  el.style.cssText='background:#fff;border:1px solid var(--line);border-left:4px solid #f5cb00;border-radius:10px;padding:10px 14px;margin:0 0 12px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start';
+  kpis.parentNode.insertBefore(el,kpis);}
+ const now=new Date();
+ const rdv=(cal||[]).filter(e=>!e.isAllDay);
+ const deb=e=>new Date(e.start.dateTime+(String(e.start.dateTime).slice(-1)==='Z'?'':'Z'));
+ const proch=rdv.map(e=>({t:deb(e),s:e.subject||''})).filter(x=>x.t>now).sort((a,b)=>a.t-b.t)[0];
+ const nT=(UNCAT_LIST||[]).filter(m=>!dejaTraite(m)).length;
+ const fmtH=d=>d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}).replace(':',' h ');
+ el.innerHTML='<div style="flex:1;min-width:0"><b>🌅 Ma journée</b> — '
+  +(rdv.length?(rdv.length+' rendez-vous'+(proch?(', prochain : <b>'+fmtH(proch.t)+' — '+esc(proch.s)+'</b>'):'')):'aucun rendez-vous')
+  +' · <b>'+nT+'</b> mail(s) à trier — bouton ⚡ Express pour les enchaîner.</div>'
+  +'<button class="qa" onclick="_lsSet(\'jourFerme\',isoDay(new Date()));this.parentNode.remove()" title="Masquer jusqu’à demain">✕</button>';
+}catch(e){}}
 function uncatToolbar(){const M=UNCAT_MODE;return '<div class="uncbar">'
+  +'<button class="tgl" id="express-go" title="Faire défiler les mails un par un avec toutes les actions — idéal sur téléphone">⚡ Express</button>'
   +'<button class="tgl'+(M==='prio'?' on':'')+'" onclick="setUncatMode(\'prio\')" title="Urgences, devis et demandes clients en premier">🔥 Priorités d\'abord</button>'
   +'<button class="tgl'+(M==='cat'?' on':'')+'" onclick="setUncatMode(\'cat\')">📁 Par catégorie</button>'
   +'<button class="tgl'+(M==='date'?' on':'')+'" onclick="setUncatMode(\'date\')">🕒 Par date</button>'
@@ -2150,6 +2427,7 @@ function uncatToolbar(){const M=UNCAT_MODE;return '<div class="uncbar">'
   +'<button class="minibtn newcat-tk" id="bulk-newcat" title="Créer une nouvelle catégorie Outlook">＋</button>'
   +'<button class="minibtn" id="bulk-go">Classer la sélection</button>'
   +'<button class="tgl" id="bulk-all">Tout cocher (visible)</button>'
+  +'<button class="tgl" id="rules-gen" title="Créer des règles Outlook à partir de vos habitudes : les expéditeurs récurrents arrivent déjà catégorisés">⚙️ Règles Outlook</button>'
   +'<span class="sub" id="bulk-n" style="align-self:center"></span></div>';}
 function renderUncat(){const el=document.getElementById('uncat');if(!el)return;const __y=window.pageYOffset;
  // filet de sécurité : un mail déjà classé ne doit jamais réapparaître
@@ -2648,6 +2926,11 @@ function shell(){
    const rcd=ev.target.closest('.recdel');if(rcd){ev.preventDefault();const i=+rcd.getAttribute('data-i');const row=rcd.closest('.frow');
      pendingAction('Routine supprimée',row,()=>{RECUR.splice(i,1);recurSave();return true;});return;}
    const dgd=ev.target.closest('.delgdone');if(dgd){ev.preventDefault();const i=+dgd.getAttribute('data-i');if(DELEG[i]){DELEG[i].done=true;delegSave();renderDeleg();}return;}
+   const exg=ev.target.closest('#express-go');if(exg){ev.preventDefault();expressStart();return;}
+   const exn=ev.target.closest('#mk-exnext');if(exn){ev.preventDefault();expressSuivant(exn.getAttribute('data-cur'));return;}
+   const exs=ev.target.closest('#mk-exstop');if(exs){ev.preventDefault();EXPRESS=false;closePreview();return;}
+   const rgb=ev.target.closest('#rules-gen');if(rgb){ev.preventDefault();reglesOutlookUI(rgb);return;}
+   const rsl=ev.target.closest('#r-slots');if(rsl){ev.preventDefault();insererCreneaux(rsl);return;}
    const mtk=ev.target.closest('#mk-task');if(mtk){ev.preventDefault();mkTaskFromMail(mtk);return;}
    const ea=ev.target.closest('#eng-analyze');if(ea){ev.preventDefault();analyzeEngage(ea);return;}
    const ac=ev.target.closest('.aicat');if(ac){ev.preventDefault();aiCatBacklog(ac);return;}
@@ -3096,11 +3379,13 @@ function ouvrirCreationRdv(btn,pre){
   +'<input class="rdvlieu" value="'+esc(pre.lieu||'')+'" placeholder="Lieu (chantier, bureau, visio…)">'
   +(from?('<label class="rdvinv"><input type="checkbox" class="rdvcheck" checked> Inviter <b>'+esc(from)+'</b></label>')
         :'<label class="rdvinv"><input type="checkbox" class="rdvcheck" style="display:none"></label>')
+  +'<input class="rdvinvites" placeholder="Autres invités (tapez un nom — séparez par des points-virgules)">'
   +(mid?('<label class="rdvinv"><input type="checkbox" class="rdvmail" checked> '
         +'Reprendre le mail dans le rendez-vous <span class="sub">(contenu + pièces jointes)</span></label>'):'')
   +'<div class="rdvline"><button class="minibtn rdvok">Créer</button><button class="qa rdvcancel">Annuler</button></div>'
   +'<a class="sub rdvout" href="#" target="_blank" rel="noopener" style="text-align:center">…ou ouvrir le formulaire complet dans Outlook</a>';
  document.body.appendChild(p);
+ try{attachRecipientAutocomplete(p.querySelector('.rdvinvites'));}catch(e){}
  const r=btn.getBoundingClientRect(),hh=p.offsetHeight||330,ww=p.offsetWidth||340;
  p.style.left=Math.max(8,Math.min(r.left-150,window.innerWidth-ww-8))+'px';
  p.style.top=Math.max(8,Math.min(r.bottom+6,window.innerHeight-hh-10))+'px';
@@ -3142,6 +3427,7 @@ function ouvrirCreationRdv(btn,pre){
    const ev2=await creerEvenement({objet:obj,debut:fmt(debut),fin:fmt(fin),
      lieu:p.querySelector('.rdvlieu').value.trim(),
      invite:(p.querySelector('.rdvcheck')&&p.querySelector('.rdvcheck').checked)?from:'',
+     invites:((p.querySelector('.rdvinvites')&&p.querySelector('.rdvinvites').value)||'').split(/[;,]+/).map(x=>x.trim()).filter(x=>/@/.test(x)),
      note:'Rendez-vous créé depuis le tableau'+(subj?(', suite au mail « '+subj+' »'):'')+'.',
      mail:infoMail});
    if(ev2){closeQpop();
@@ -3671,19 +3957,20 @@ async function attachToDraft(mid,a,prog){
    if(!pr.ok&&pr.status!==201&&pr.status!==200&&pr.status!==202)throw new Error('envoi interrompu sur « '+b.name+' »');
    if(prog)prog(b.name,Math.round(end/b.size*100));}}
 // Envoi avec pièces jointes : brouillon → pièces → envoi
-async function sendWithAtt(to,cc,subject,html,prog){
+async function sendWithAtt(to,cc,subject,html,prog,quand){
  // liens de partage d'abord (ils vont dans le corps)
  let extra='';const files=[];
  for(const a of ATT){if(a.asLink){const l=await attLink(a);if(l)extra+='<br>📎 <a href="'+esc(l)+'">'+esc(a.name)+'</a>';else files.push(a);}else files.push(a);}
  const finalHtml=html+(extra?('<br><br><b>Documents partagés :</b>'+extra):'');
  const t=await tok();
- if(!files.length){
+ if(!files.length&&!quand){
    const msg={subject:subject||'(sans objet)',body:{contentType:'HTML',content:finalHtml},toRecipients:parseAddrs(to)};
    const c=parseAddrs(cc);if(c.length)msg.ccRecipients=c;
    const r=await fetch('https://graph.microsoft.com/v1.0/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({message:msg,saveToSentItems:true})});
    if(!r.ok)throw new Error('Envoi refusé ('+r.status+')');return true;}
  const body={subject:subject||'(sans objet)',body:{contentType:'HTML',content:finalHtml},toRecipients:parseAddrs(to)};
  const c=parseAddrs(cc);if(c.length)body.ccRecipients=c;
+ if(quand)body.singleValueExtendedProperties=propDiffere(quand);
  const rd=await fetch('https://graph.microsoft.com/v1.0/me/messages',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
  if(!rd.ok)throw new Error('Brouillon refusé ('+rd.status+')');
  const d=await rd.json();
@@ -3745,11 +4032,12 @@ function openNewMail(pre){
    if(!verifAvantEnvoi(bd.value,sj.value,to.value))return;
    if(!sj.value.trim()&&!confirm('Envoyer sans objet ?'))return;
    if(!confirm('Envoyer maintenant à :\n'+to.value+(cc.value.trim()?('\nCc : '+cc.value):'')+'\n\nObjet : '+(sj.value||'(sans objet)')+' ?'))return;
-   const old=b.textContent;b.disabled=true;b.textContent='Envoi…';
+   const quand=proposerDiffere();
+   const old=b.textContent;b.disabled=true;b.textContent=quand?'Programmation…':'Envoi…';
    const sg2=sigHtml(sg.value);
    const html='<div style="font-family:Calibri,Arial,sans-serif;font-size:11pt">'+txt2html(bd.value)+(sg2?('<br><br>'+sg2):'')+'</div>';
-   try{await sendWithAtt(to.value,cc.value,sj.value,html,(nm,pc,i,tt)=>{b.textContent='Envoi '+(i?('('+i+'/'+tt+') '):'')+nm+' '+(pc||0)+'%';});
-     p.classList.remove('show');attClear();toast('Message envoyé ✔',true);
+   try{await sendWithAtt(to.value,cc.value,sj.value,html,(nm,pc,i,tt)=>{b.textContent='Envoi '+(i?('('+i+'/'+tt+') '):'')+nm+' '+(pc||0)+'%';},quand);
+     p.classList.remove('show');attClear();toast(quand?('Envoi programmé pour '+libelleDiff(quand)+' ✔ — annulable depuis la Boîte d\'envoi Outlook'):'Message envoyé ✔',true);
      parseAddrs(to.value).forEach(x=>addPerson('',x.emailAddress.address));}
    catch(e){toast('Échec de l\'envoi : '+e.message,false);}
    b.disabled=false;b.textContent=old;};
@@ -3767,7 +4055,7 @@ async function mkTaskFromMail(btn){
  const subj=btn.getAttribute('data-subj')||'';const mid=btn.getAttribute('data-id')||'';
  const old=btn.textContent;btn.disabled=true;btn.textContent='… Claude propose';
  let titre='Traiter : '+subj, due='';
- try{const r=await aiCall('Voici l\'objet d\'un mail reçu par Jérôme ALLARD (dirigeant ATSE BORDES, CVC-plomberie). Propose une tâche courte à l\'impératif (max 10 mots) et une échéance réaliste.\nDate du jour : '+isoDay(new Date())+'.\nRéponds UNIQUEMENT sur une ligne au format : TITRE§AAAA-MM-JJ\n\nObjet : '+subj,120);
+ try{const r=await aiCall('Voici l\'objet d\'un mail reçu par Jérôme ALLARD (dirigeant ATSE BORDES, CVC-plomberie). Propose une tâche courte à l\'impératif (max 10 mots) et une échéance réaliste.\nDate du jour : '+isoDay(new Date())+'.\nRéponds UNIQUEMENT sur une ligne au format : TITRE§AAAA-MM-JJ\n\nObjet : '+subj+'\nDébut du message : '+String(corpsConnu(mid)||'').replace(/\s+/g,' ').slice(0,1200),200);
    const pp=(r||'').split('§');if(pp[0]&&pp[0].trim())titre=pp[0].trim();if(pp[1]&&/\d{4}-\d{2}-\d{2}/.test(pp[1]))due=pp[1].trim().slice(0,10);}catch(e){}
  btn.disabled=false;btn.textContent=old;
  const t=prompt('Tâche à créer (modifiable) :',titre);if(t==null)return;
@@ -3928,10 +4216,10 @@ async function loadBacklog(){
  try{const s60=new Date('2026-01-01T00:00:00').toISOString();
   const m60=await graphAll("/me/mailFolders/inbox/messages?$select=subject,from,toRecipients,ccRecipients,receivedDateTime,isRead,webLink,categories&$filter=receivedDateTime ge "+s60+"&$orderby=receivedDateTime desc&$top=100",2000);
   learnFrom(m60);
-  const u2=m60.filter(m=>!(m.categories&&m.categories.length)&&!classify(m).pub);u2.forEach(m=>m._g=classify(m).g);
+  const u2=m60.filter(m=>!(m.categories&&m.categories.length)&&!classify(m).pub&&!dejaTraite(m));u2.forEach(m=>m._g=classify(m).g);
   const by2={};u2.forEach(m=>{(by2[m._g]=by2[m._g]||[]).push(m);});
   const k2=Object.keys(by2).sort((a,b)=>by2[b].length-by2[a].length);
-  document.getElementById('uncat2-count').textContent=u2.length?('· '+u2.length+(m60.length>=2000?' (partiel)':'')):'';
+  document.getElementById('uncat2-count').textContent=u2.length?('· '+u2.length+(m60.length>=8000?' (analyse partielle)':'')):'';
   {const ku=document.getElementById('k-uncat');if(ku)ku.textContent=u2.length;}
   const aiBtn='<button class="minibtn aicat" title="Utilise l\'IA + vos habitudes pour remplir les catégories encore vides ci-dessous">🧠 Pré-catégoriser le reste avec l\'IA</button>';
   box.innerHTML=u2.length?(aiBtn+k2.map(g=>{const list=by2[g];const real=(REALCAT[g]&&MASTERCATS.indexOf(REALCAT[g])>=0)?REALCAT[g]:(MASTERCATS.indexOf(g)>=0?g:'');return '<details class="grp"'+og(g,false)+'><div class="bar"></div><summary>'+esc(g)+' <span class="badge">'+list.length+'</span></summary><div class="inner">'+(real?'<button class="minibtn batch" data-batch="'+esc(real)+'" data-ids="'+list.map(m=>esc(m.id)).join('|')+'">Tout classer en « '+esc(real)+' »</button>':'')+list.slice(0,60).map(m=>richRow(m,{filing:true})).join('')+'</div></details>';}).join('')):'<div class="sub">Tout est catégorisé depuis le 1er janvier 2026. 👌</div>';
@@ -4303,14 +4591,56 @@ async function loadData(SNAP){
             folders:window.__foldAll||[],mastercats:MASTERCATS,
             todo:TODO,todoList:TODO_LIST});
   renderBlocked();
+  try{renderMaJournee(cal);}catch(e){}
  }
  document.getElementById('foot').textContent='Source : Microsoft Graph (votre compte). Le tableau lit la boîte de réception, l’agenda, les éléments envoyés et vos dossiers catégorisés (Factures, Veille marchés). Fichiers sensibles exclus.';
 }
+
+// ---------- Réglages synchronisés entre appareils (via OneDrive) ----------
+// Signature JA, clé IA, modèles de réponse, destinations Cloud, habitudes de
+// classement : recopiés dans « Applications ATSE/tableau-reglages.json » sur votre
+// OneDrive. Chaque appareil lit ce fichier au démarrage et l'écrit en quittant la
+// page (dernier écrit fait foi). Ainsi la signature ou la clé IA saisie sur le Mac
+// se retrouve sur l'iPhone et l'iPad, et inversement.
+const REG_PATH='/me/drive/root:/Applications%20ATSE/tableau-reglages.json';
+function regKeys(){
+ const base=(window.BKEYS&&window.BKEYS.length)?window.BKEYS.slice():['catLearn','catLearnSub','atse_catmem','replyTpls','sigChoice','sigPerso','sigJA','atse_fupdays','atse_recur','atse_deleg','atse_people','atse_todolist'];
+ ['anthropicKey','cloudDests','cloudLast_od','cloudLast_sp'].forEach(k=>{if(base.indexOf(k)<0)base.push(k);});
+ // atse_valid (mails masqués localement) reste propre à chaque appareil : volumineux
+ // et sans intérêt ailleurs, puisque le classement lui-même vit dans Outlook.
+ return base.filter(k=>k!=='atse_valid'&&k!=='atse_regT');}
+async function regPull(){try{
+ const t=await tok();
+ const r=await fetch('https://graph.microsoft.com/v1.0'+REG_PATH+':/content',{headers:{Authorization:'Bearer '+t}});
+ if(!r.ok)return;                        // pas encore de fichier : premier appareil
+ const o=await r.json();if(!o||!o._t||!o.data)return;
+ const localT=+(_lsGet('atse_regT')||0);
+ if(o._t<=localT)return;                 // nos réglages locaux sont plus récents
+ Object.keys(o.data).forEach(k=>{try{if(o.data[k]!=null)localStorage.setItem(k,o.data[k]);}catch(e){}});
+ _lsSet('atse_regT',String(o._t));
+}catch(e){}}
+async function regPush(){try{
+ if(!account)return;
+ const data={};regKeys().forEach(k=>{const v=_lsGet(k);if(v!=null)data[k]=v;});
+ if(!Object.keys(data).length)return;
+ await ensureFolder('/me/drive','Applications ATSE');
+ const t=await tok();const now=Date.now();
+ const body=JSON.stringify({_t:now,data:data});
+ await fetch('https://graph.microsoft.com/v1.0'+REG_PATH+':/content',{method:'PUT',keepalive:body.length<60000,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:body});
+ _lsSet('atse_regT',String(now));
+}catch(e){}}
+function regWire(){if(window.__regWired)return;window.__regWired=true;
+ setInterval(regPush,180000);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')regPush();});
+ window.addEventListener('pagehide',()=>regPush());}
 
 async function render(){
  if(!account){app.innerHTML=`<div class="gate"><h1>Tableau de bord ATSE BORDES</h1><p>Connectez-vous avec votre compte Microsoft 365 pour afficher vos mails, votre agenda et vos documents en direct.</p><p><button class="act" id="in">Se connecter avec Microsoft</button></p></div>`;
   document.getElementById('in').onclick=signIn;return;}
  shell();
+ // Réglages partagés : lecture OneDrive (4 s maximum, sans bloquer l'affichage au-delà)
+ try{await Promise.race([regPull(),new Promise(r=>setTimeout(r,4000))]);}catch(e){}
+ regWire();
  // 1) affichage immédiat à partir du dernier état connu (aucun appel réseau)
  try{const snap=await cacheGet();if(snap)await loadData(snap);}catch(e){}
  // 2) actualisation réelle depuis Microsoft 365, en arrière-plan
@@ -4319,6 +4649,32 @@ async function render(){
 (async function(){
  if(!configured){app.innerHTML=`<div class="gate"><h1>Configuration requise</h1><div class="cfgwarn">Renseignez <code>CLIENT_ID</code> et <code>TENANT_ID</code> en haut du code (voir le guide).</div></div>`;return;}
  try{await initMsal();await render();}catch(e){app.innerHTML='<div class="gate"><h1>Erreur d\'initialisation</h1><p class="err">'+esc(e.message)+'</p></div>';}
+})();
+</script>
+<script>
+// ---------- Confort d'affichage : thème clair/sombre et densité (par appareil) ----------
+(function(){
+ function gv(k,d){try{return localStorage.getItem(k)||d;}catch(e){return d;}}
+ function sv(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+ function applyTheme(){const m=gv('atse_theme','auto');const h=new Date().getHours();
+  document.body.classList.toggle('sombre',m==='sombre'||(m==='auto'&&(h>=20||h<7)));}
+ function applyDens(){const m=gv('atse_densite','auto');
+  const tactile=(navigator.maxTouchPoints||0)>0&&window.innerWidth<1100;
+  document.body.classList.toggle('dense',m==='compact'||(m==='auto'&&!tactile));}
+ function addBtns(){const hd=document.querySelector('header.top');if(!hd||document.getElementById('btn-theme'))return;
+  const ref=hd.querySelector('button.ghost');const zone=ref?ref.parentNode:hd;
+  const bt=document.createElement('button');bt.className='ghost';bt.id='btn-theme';bt.title='Clair, sombre, ou automatique (sombre après 20 h)';
+  const bd2=document.createElement('button');bd2.className='ghost';bd2.id='btn-dens';bd2.title='Compact = plus de mails à l\'écran ; Confort = plus lisible au doigt';
+  const lb=()=>{const t=gv('atse_theme','auto'),d=gv('atse_densite','auto');
+    bt.textContent='◐ '+(t==='auto'?'Thème auto':(t==='sombre'?'Sombre':'Clair'));
+    bd2.textContent='◫ '+(d==='auto'?'Densité auto':(d==='compact'?'Compact':'Confort'));};
+  bt.onclick=()=>{const q={auto:'sombre',sombre:'clair',clair:'auto'};sv('atse_theme',q[gv('atse_theme','auto')]);applyTheme();lb();};
+  bd2.onclick=()=>{const q={auto:'compact',compact:'confort',confort:'auto'};sv('atse_densite',q[gv('atse_densite','auto')]);applyDens();lb();};
+  lb();zone.appendChild(bt);zone.appendChild(bd2);}
+ const boot=()=>{applyTheme();applyDens();addBtns();};
+ if(document.readyState!=='loading')boot();else document.addEventListener('DOMContentLoaded',boot);
+ setInterval(applyTheme,600000);
+ try{new MutationObserver(addBtns).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
 </script>
 </body>
