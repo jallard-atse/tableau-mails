@@ -2085,7 +2085,12 @@ async function openPreview(id){
     [window.__mails,window.__flagged,UNCAT_LIST,WL_LIST].forEach(a=>{
       const mm=(a||[]).find(x=>x&&x.id===id);if(mm)mm._corps=txt;});}catch(e){}
   document.getElementById('modal-h').textContent=j.subject||'(sans objet)';
-  document.getElementById('modal-sub').textContent=who+(dt?(' · '+new Date(dt).toLocaleString('fr-FR')):'');
+  {const el=document.getElementById('modal-sub');
+   // Tous les destinataires du mail, pas seulement l'expéditeur.
+   const lst=r=>((r||[]).map(x=>x&&x.emailAddress&&(x.emailAddress.name||x.emailAddress.address)||'').filter(Boolean));
+   const tos=lst(j.toRecipients),ccs=lst(j.ccRecipients);
+   const ligne=(lab,arr)=>arr.length?('<br><span style="opacity:.85;font-size:12px"><b>'+lab+'</b> '+esc(arr.slice(0,15).join(', '))+(arr.length>15?(' … et '+(arr.length-15)+' autre(s)'):'')+'</span>'):'';
+   el.innerHTML=esc(who)+(dt?(' · '+new Date(dt).toLocaleString('fr-FR')):'')+ligne('À :',tos)+ligne('Cc :',ccs);}
   const types=['Accuser réception','Accepter','Décliner','Demander une précision','Transmettre en interne','Relancer','Proposer un créneau'];
   const fromAddr=(j.from&&j.from.emailAddress&&j.from.emailAddress.address)||'';
   c.innerHTML='<div class="mbar"><button class="ghost" id="mk-read"></button><button class="ghost" id="mk-flag">⚑ Indicateur</button><button class="ghost" id="mk-rename">✏️ Renommer l’objet</button><button class="ghost" id="mk-sum" style="background:#eef0ff">🧾 Résumer + actions</button><button class="ghost" id="mk-task" style="background:#e4f5ea" data-subj="'+esc(j.subject||'')+'" data-id="'+id+'">✅ En faire une tâche</button><button class="ghost" id="mk-rdv" style="background:#eafaf0">📅 RDV depuis ce mail</button><button class="ghost" id="mk-aff" style="background:#fff4e5">🏗️ Fiche affaire</button><a class="ghost" id="mk-link" target="_blank" rel="noopener" style="background:#e8f4ff;text-decoration:none;display:none">🔗 Ouvrir le lien</a>'+(EXPRESS?'<button class="ghost" id="mk-exnext" data-cur="'+id+'" style="background:#fff3bf;font-weight:700">⚡ Suivant</button><button class="ghost" id="mk-exstop" title="Quitter le traitement express">✕ Express</button>':'')+'<button class="ghost" id="mk-other">📥 Mettre en « Autres »</button><button class="ghost" id="mk-block" style="color:#b23b3b">🚫 Bloquer l’expéditeur</button><a class="ghost" href="'+esc(j.webLink||'#')+'" target="_blank" style="text-decoration:none">Ouvrir dans Outlook</a></div>'
@@ -3369,13 +3374,18 @@ function ouvrirCreationRdv(btn,pre){
      propose=true;}}
  const dur0=[30,60,90,120,240].indexOf(pre.duree)>=0?pre.duree:60;
  const obj0=(pre.titre||subj).replace(/^((re|tr|fw|fwd)\s*:\s*)+/i,'');
+ const _hm=(heure||'09:00').split(':');
+ const _fin0=(()=>{let n=(+_hm[0])*60+(+_hm[1]||0)+(dur0||60);n=Math.min(n,1439);
+   return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');})();
  p.innerHTML='<div class="ncTitle">📅 Créer le rendez-vous</div>'
   +(propose?'<div class="sub" style="margin:-4px 0 2px">Créneau repéré dans le message — vérifiez-le.</div>':'')
   +'<input class="rdvobj" value="'+esc(obj0)+'" placeholder="Objet du rendez-vous">'
   +'<div class="rdvline"><input type="date" class="rdvdate" value="'+esc(jour)+'">'
-   +'<input type="time" class="rdvh" value="'+esc(heure)+'" step="900">'
-   +'<select class="rdvdur">'+[[30,'30 min'],[60,'1 h'],[90,'1 h 30'],[120,'2 h'],[240,'demi-journée']]
-      .map(o=>'<option value="'+o[0]+'"'+(o[0]===dur0?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>'
+   +'<input type="time" class="rdvh" value="'+esc(heure)+'" step="900" title="Heure de début">'
+   +'<span class="sub" style="align-self:center">→</span>'
+   +'<input type="time" class="rdvhfin" value="'+_fin0+'" step="900" title="Heure de fin"></div>'
+  +'<div class="rdvline" style="flex-wrap:wrap">'+[[30,'30 min'],[60,'1 h'],[90,'1 h 30'],[120,'2 h'],[240,'½ journée'],[540,'Journée']]
+      .map(o=>'<button type="button" class="qa rdvdurbtn" data-m="'+o[0]+'">'+o[1]+'</button>').join('')+'</div>'
   +'<input class="rdvlieu" value="'+esc(pre.lieu||'')+'" placeholder="Lieu (chantier, bureau, visio…)">'
   +(from?('<label class="rdvinv"><input type="checkbox" class="rdvcheck" checked> Inviter <b>'+esc(from)+'</b></label>')
         :'<label class="rdvinv"><input type="checkbox" class="rdvcheck" style="display:none"></label>')
@@ -3386,6 +3396,14 @@ function ouvrirCreationRdv(btn,pre){
   +'<a class="sub rdvout" href="#" target="_blank" rel="noopener" style="text-align:center">…ou ouvrir le formulaire complet dans Outlook</a>';
  document.body.appendChild(p);
  try{attachRecipientAutocomplete(p.querySelector('.rdvinvites'));}catch(e){}
+ {const hI=p.querySelector('.rdvh'),fI=p.querySelector('.rdvhfin');
+  const toMin=v=>{const m=(v||'0:0').split(':');return (+m[0])*60+(+m[1]||0);};
+  const toHH=n=>{n=Math.max(0,Math.min(n,1439));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');};
+  let durCour=Math.max(15,toMin(fI.value)-toMin(hI.value))||60;
+  hI.addEventListener('input',()=>{fI.value=toHH(toMin(hI.value)+durCour);});
+  fI.addEventListener('input',()=>{const d=toMin(fI.value)-toMin(hI.value);if(d>0)durCour=d;});
+  p.querySelectorAll('.rdvdurbtn').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    durCour=+b.getAttribute('data-m');fI.value=toHH(toMin(hI.value)+durCour);});}
  const r=btn.getBoundingClientRect(),hh=p.offsetHeight||330,ww=p.offsetWidth||340;
  p.style.left=Math.max(8,Math.min(r.left-150,window.innerWidth-ww-8))+'px';
  p.style.top=Math.max(8,Math.min(r.bottom+6,window.innerHeight-hh-10))+'px';
@@ -3397,7 +3415,9 @@ function ouvrirCreationRdv(btn,pre){
  {const a=p.querySelector('.rdvout');
   const maj=()=>{const o=p.querySelector('.rdvobj').value.trim()||'Rendez-vous';
     const dt=p.querySelector('.rdvdate').value, h=p.querySelector('.rdvh').value;
-    const du=parseInt(p.querySelector('.rdvdur').value,10)||60;
+    let du=60;{const hf2=(p.querySelector('.rdvhfin')&&p.querySelector('.rdvhfin').value)||'';
+      if(hf2&&h){const mm=x=>{const a=x.split(':');return (+a[0])*60+(+a[1]||0);};
+        const dd=mm(hf2)-mm(h);if(dd>0)du=dd;}}
     let u='https://outlook.office.com/calendar/0/deeplink/compose?subject='+encodeURIComponent(o);
     const li=p.querySelector('.rdvlieu').value.trim();if(li)u+='&location='+encodeURIComponent(li);
     if(dt&&h){const sd=new Date(dt+'T'+h+':00');
@@ -3406,16 +3426,17 @@ function ouvrirCreationRdv(btn,pre){
         u+='&startdt='+encodeURIComponent(f(sd))+'&enddt='+encodeURIComponent(f(new Date(sd.getTime()+du*60000)));}}
     if(from)u+='&to='+encodeURIComponent(from);
     a.href=u;};
-  maj();['.rdvobj','.rdvdate','.rdvh','.rdvdur','.rdvlieu'].forEach(sel=>{
+  maj();['.rdvobj','.rdvdate','.rdvh','.rdvhfin','.rdvlieu'].forEach(sel=>{
     const el=p.querySelector(sel);if(el)el.addEventListener('input',maj);});
   a.addEventListener('click',()=>setTimeout(closeQpop,80));}
  p.querySelector('.rdvok').onclick=async function(){
    const obj=p.querySelector('.rdvobj').value.trim();
    const dt=p.querySelector('.rdvdate').value, h=p.querySelector('.rdvh').value;
    if(!obj||!dt||!h){toast('Objet, date et heure sont nécessaires',false);return;}
-   const dur=parseInt(p.querySelector('.rdvdur').value,10)||60;
+   const hfv=(p.querySelector('.rdvhfin')&&p.querySelector('.rdvhfin').value)||'';
    const debut=new Date(dt+'T'+h+':00');
-   const fin=new Date(debut.getTime()+dur*60000);
+   let fin=hfv?new Date(dt+'T'+hfv+':00'):new Date(debut.getTime()+3600000);
+   if(!(fin>debut)){toast('L\'heure de fin doit être après l\'heure de début',false);this.disabled=false;this.textContent='Créer';return;}
    const fmt=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')
      +'T'+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')+':00';
    this.disabled=true;this.textContent='Création…';
