@@ -410,7 +410,7 @@ const TENANT_ID = "e3c5113e-2fb0-4c8f-9c87-0b5878bf6a03";
 </script>
 <div id="app"></div>
 <script>
-const SCOPES=["User.Read","Mail.ReadWrite","Mail.Send","Calendars.ReadWrite","Sites.Read.All","Files.Read.All","MailboxSettings.ReadWrite","People.Read","Contacts.Read","Tasks.ReadWrite"];
+const SCOPES=["User.Read","Mail.ReadWrite","Mail.Send","Calendars.ReadWrite","Sites.Read.All","Files.ReadWrite.All","MailboxSettings.ReadWrite","People.Read","Contacts.Read","Tasks.ReadWrite"];
 const app=document.getElementById('app');
 const configured = CLIENT_ID && CLIENT_ID.indexOf("COLLEZ")<0 && TENANT_ID && TENANT_ID.indexOf("COLLEZ")<0;
 const ME="j.allard@atse-bordes.fr";
@@ -1737,11 +1737,68 @@ async function loadAffExtras(cat){
 function b64ToBlob(b64,type){const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:type||'application/octet-stream'});}
 function humanSize(n){if(n==null)return '';if(n<1024)return n+' o';if(n<1048576)return Math.round(n/1024)+' Ko';return (n/1048576).toFixed(1)+' Mo';}
 function attIcon(t){t=(t||'').toLowerCase();if(t.indexOf('pdf')>=0)return'📕';if(t.indexOf('image')>=0)return'🖼️';if(t.indexOf('word')>=0||t.indexOf('officedocument.wordprocessing')>=0)return'📘';if(t.indexOf('sheet')>=0||t.indexOf('excel')>=0||t.indexOf('csv')>=0)return'📗';if(t.indexOf('zip')>=0||t.indexOf('compress')>=0||t.indexOf('rar')>=0)return'🗜️';return'📎';}
+// ---------- Enregistrement des pièces jointes sur OneDrive / SharePoint ----------
+// Le fichier part directement de Microsoft 365 vers le dossier choisi, sans passer
+// par les téléchargements de l'appareil. Fonctionne sur Mac, iPad et iPhone.
+const SP_HOST='atsebordes24.sharepoint.com';
+let SP_SITE_ID=null;
+async function spSiteId(){if(SP_SITE_ID)return SP_SITE_ID;const j=await graph('/sites/'+SP_HOST+':/');SP_SITE_ID=j.id;return SP_SITE_ID;}
+function encPath(p){return (p||'').split('/').filter(Boolean).map(encodeURIComponent).join('/');}
+function cloudDests(){try{const v=JSON.parse(_lsGet('cloudDests')||'null');if(Array.isArray(v)&&v.length)return v;}catch(e){}
+ return [{label:'OneDrive — 00.TELECHARGEMENTS',kind:'od',path:'00.TELECHARGEMENTS'},
+         {label:'SharePoint — Documents partagés (racine)',kind:'sp',path:''}];}
+function saveCloudDests(v){try{_lsSet('cloudDests',JSON.stringify(v));}catch(e){}}
+async function drivePrefix(kind){return kind==='sp'?('/sites/'+await spSiteId()+'/drive'):'/me/drive';}
+async function ensureFolder(prefix,path){ // crée l'arborescence manquante (équivalent « mkdir -p »)
+ if(!path)return;const parts=path.split('/').filter(Boolean);let cur='';
+ for(const p of parts){const parent=cur?(prefix+'/root:/'+encPath(cur)+':/children'):(prefix+'/root/children');
+  cur=cur?cur+'/'+p:p;
+  try{const t=await tok();await fetch('https://graph.microsoft.com/v1.0'+parent,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({name:p,folder:{},'@microsoft.graph.conflictBehavior':'fail'})});}catch(e){}}}
+async function uploadToCloud(dest,name,blob,progressBtn){
+ const prefix=await drivePrefix(dest.kind);
+ const sub=(dest.path||'').replace(/^\/+|\/+$/g,'');
+ await ensureFolder(prefix,sub);
+ const itemPath=prefix+'/root:/'+encPath((sub?sub+'/':'')+name);
+ const t=await tok();
+ if(blob.size<=3500000){
+  const r=await fetch('https://graph.microsoft.com/v1.0'+itemPath+':/content?@microsoft.graph.conflictBehavior=rename',{method:'PUT',headers:{Authorization:'Bearer '+t,'Content-Type':'application/octet-stream'},body:blob});
+  if(!r.ok)throw new Error('Graph '+r.status);return r.json();}
+ // Gros fichiers (plans…) : téléversement par tranches
+ const s=await fetch('https://graph.microsoft.com/v1.0'+itemPath+':/createUploadSession',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({item:{'@microsoft.graph.conflictBehavior':'rename',name:name}})});
+ if(!s.ok)throw new Error('Graph '+s.status);
+ const sess=await s.json();const CH=6553600;let pos=0,fin=null;
+ while(pos<blob.size){const end=Math.min(pos+CH,blob.size);
+  const r=await fetch(sess.uploadUrl,{method:'PUT',headers:{'Content-Range':'bytes '+pos+'-'+(end-1)+'/'+blob.size},body:blob.slice(pos,end)});
+  if(!(r.ok||r.status===202))throw new Error('téléversement interrompu ('+r.status+')');
+  fin=r;pos=end;if(progressBtn)progressBtn.textContent=Math.round(100*pos/blob.size)+' %';}
+ return fin&&fin.status!==202?fin.json():null;}
+function openCloudPicker(box,fileName,cb){
+ const old=box.querySelector('#cloudpick');if(old)old.remove();
+ const d=cloudDests();
+ const el=document.createElement('div');el.id='cloudpick';
+ el.style.cssText='margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff';
+ el.innerHTML='<div class="atth">☁ Enregistrer « '+esc(fileName)+' » vers…</div>'
+  +d.map((x,i)=>'<button class="qa cp-go" data-i="'+i+'" style="margin:3px 4px 3px 0">'+esc(x.label)+'</button>').join('')
+  +'<button class="qa" id="cp-add" style="margin:3px 4px 3px 0">＋ Ajouter une destination</button>'
+  +'<button class="qa" id="cp-close" style="margin:3px 0">Annuler</button>'
+  +'<div class="sub">Envoi direct depuis Microsoft 365 vers le dossier choisi ; un dossier absent est créé automatiquement. En cas de fichier déjà présent, une copie numérotée est ajoutée.</div>';
+ box.appendChild(el);
+ el.querySelectorAll('.cp-go').forEach(b=>b.onclick=()=>{el.remove();cb(d[+b.getAttribute('data-i')]);});
+ el.querySelector('#cp-close').onclick=()=>el.remove();
+ el.querySelector('#cp-add').onclick=()=>{
+  const k=(prompt('Destination : tapez OD pour OneDrive, SP pour SharePoint (Documents partagés)','SP')||'').trim().toUpperCase();
+  if(k!=='OD'&&k!=='SP')return;
+  const p=(prompt('Chemin du dossier (ex. 06.SERVICE/DEVIS ou 00.TELECHARGEMENTS)','')||'').trim().replace(/^\/+|\/+$/g,'');
+  const lbl=(prompt('Nom affiché pour cette destination',(k==='OD'?'OneDrive — ':'SharePoint — ')+(p||'racine'))||'').trim();
+  if(!lbl)return;
+  const list=cloudDests();list.push({label:lbl,kind:k==='OD'?'od':'sp',path:p});saveCloudDests(list);
+  openCloudPicker(box,fileName,cb);};}
+
 function renderAttachments(msgId,atts){const box=document.getElementById('mk-att');if(!box)return;
  // Vraies pièces jointes = tout ce qui a un nom, sauf les images intégrées (déjà dans le corps)
  const files=(atts||[]).filter(a=>a&&a.name&&(!a.isInline||!/image\//i.test(a.contentType||'')));
  if(!files.length){box.innerHTML='';return;}
- box.innerHTML='<div class="atth">📎 Pièces jointes ('+files.length+')</div>'+files.map((a,i)=>`<div class="attrow"><span class="atti">${attIcon(a.contentType)}</span><span class="attn">${esc(a.name)}</span><span class="atts">${esc(humanSize(a.size))}</span><span class="attacts"><button class="qa att-view" data-i="${i}" title="Ouvrir (PDF : visionneuse avec recherche)">👁 Voir</button><button class="qa att-dl" data-i="${i}">⬇ Enregistrer</button><button class="qa att-reuse" data-i="${i}" title="Joindre ce fichier à un mail sans le télécharger">📎 Joindre</button></span></div>`).join('');
+ box.innerHTML='<div class="atth">📎 Pièces jointes ('+files.length+')</div>'+files.map((a,i)=>`<div class="attrow"><span class="atti">${attIcon(a.contentType)}</span><span class="attn">${esc(a.name)}</span><span class="atts">${esc(humanSize(a.size))}</span><span class="attacts"><button class="qa att-view" data-i="${i}" title="Ouvrir (PDF : visionneuse avec recherche)">👁 Voir</button><button class="qa att-dl" data-i="${i}">⬇ Enregistrer</button><button class="qa att-reuse" data-i="${i}" title="Joindre ce fichier à un mail sans le télécharger">📎 Joindre</button><button class="qa att-cloud" data-i="${i}" title="Enregistrer sur OneDrive ou SharePoint">☁ Cloud</button></span></div>`).join('');
  const getBytes=async(a)=>{if(a.contentBytes)return a;try{const full=await graph('/me/messages/'+encodeURIComponent(msgId)+'/attachments/'+encodeURIComponent(a.id));if(full&&full.contentBytes){a.contentBytes=full.contentBytes;if(!a.contentType)a.contentType=full.contentType;}}catch(e){}return a;};
  const isPdf=(a)=>/pdf/i.test(a.contentType||'')||/\.pdf$/i.test(a.name||'');
  const act=async(a,open,btn)=>{const old=btn.textContent;btn.disabled=true;btn.textContent='…';
@@ -1769,6 +1826,15 @@ function renderAttachments(msgId,atts){const box=document.getElementById('mk-att
    if(ATT.some(x=>x.k==='mail'&&x.attId===a.id)){toast('Déjà dans la liste',false);return;}
    ATT.push({k:'mail',name:a.name,size:a.size||0,ct:a.contentType||'application/octet-stream',msgId:msgId,attId:a.id,asLink:false});
    attRender('r-att');toast('« '+a.name+' » joint — répondez ou transférez ci-dessous',true);});
+ box.querySelectorAll('.att-cloud').forEach(b=>b.onclick=()=>{const a=files[+b.getAttribute('data-i')];
+   openCloudPicker(box,a.name,async(dest)=>{
+     const old=b.textContent;b.disabled=true;b.textContent='…';
+     try{await getBytes(a);
+       if(!a.contentBytes)throw new Error('pièce indisponible ici — ouvrez-la dans Outlook');
+       await uploadToCloud(dest,a.name,b64ToBlob(a.contentBytes,a.contentType||'application/octet-stream'),b);
+       toast('« '+a.name+' » enregistré — '+dest.label,true);}
+     catch(e){toast('Échec de l\'enregistrement : '+e.message,false);}
+     b.disabled=false;b.textContent=old;});});
 }
 // Met l'affichage en accord avec l'état lu/non lu, dans toutes les listes
 // ---------- Propagation : un mail traité dans un onglet l'est dans tous ----------
