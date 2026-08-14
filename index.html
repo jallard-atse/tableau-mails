@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestion des mails — Jérôme ALLARD (en direct)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/msal-browser/2.38.3/msal-browser.min.js"></script>
+<style>
+:root{
+ --jaune:#F5CB00; --jaune-txt:#B8860B; --jaune-fond:#FFF8D6;
+ --bleu:#257ABF; --bleu-txt:#1C6098; --bleu-fond:#E8F2FB;
+ --vert:#1E8E4E; --vert-txt:#176E3C; --vert-fond:#E9F6EE;
+ --ok:#0F7A3D; --alerte:#E65100; --rouge:#B3261E; --rouge-txt:#D23046;
+ --ink:#333333; --muted:#68707b; --line:#e6e8ec; --bg:#F5F5F5; --card:#FFFFFF;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:14px/1.45 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1160px;margin:0 auto;padding:0 16px 24px}
+header.bandeau{background:var(--ink);color:#fff;border-bottom:4px solid var(--jaune);
+ padding:14px 20px;margin:0 -16px 16px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+header.bandeau h1{font-size:18px;margin:0}
+header.bandeau .sub{color:#cfd3d8;font-size:12px;margin-top:4px}
+header.bandeau .stamp{color:var(--jaune);font-size:12px;font-weight:600;text-align:right}
+.btn{display:inline-block;background:var(--jaune);color:var(--ink);border:none;border-radius:8px;
+ padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.btn.sec{background:#e9ebee;color:var(--ink);font-weight:600}
+.centre{max-width:520px;margin:60px auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px;text-align:center}
+.centre h2{font-size:16px;margin:0 0 10px}
+.centre p{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--jaune);border-radius:10px;padding:12px 14px}
+.kpi .n{font-size:26px;font-weight:700;line-height:1}
+.kpi .l{color:var(--muted);font-size:12px;margin-top:6px}
+.kpi.rouge{border-left-color:var(--rouge)} .kpi.rouge .n{color:var(--rouge-txt)}
+.kpi.orange{border-left-color:var(--alerte)} .kpi.orange .n{color:var(--alerte)}
+.kpi.vert{border-left-color:var(--vert)} .kpi.vert .n{color:var(--vert-txt)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.card h2 .count{color:var(--muted);font-weight:500;font-size:12px}
+.item{padding:9px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.item:first-of-type{border-top:none}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--jaune);margin-top:5px;flex:none}
+.dot.rouge{background:var(--rouge)} .dot.bleu{background:var(--bleu)}
+.dot.orange{background:var(--alerte)} .dot.gris{background:#9E9E9E}
+.body{min-width:0;flex:1}
+.t{font-weight:600;font-size:13px}
+.t a{color:inherit;text-decoration:none}
+.t a:hover{text-decoration:underline}
+.m{color:var(--muted);font-size:12px}
+.chip{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:20px;background:#eef2f7;color:var(--muted);margin-left:6px;vertical-align:middle;white-space:nowrap}
+.chip.trav{background:var(--jaune-fond);color:var(--jaune-txt)}
+.chip.serv{background:var(--bleu-fond);color:var(--bleu-txt)}
+.chip.perso{background:#f1e8f7;color:#6a4b8a}
+.ev{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.ev:first-of-type{border-top:none}
+.ev .time{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;white-space:nowrap;min-width:96px}
+.srow{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--line);font-size:12.5px}
+.srow:first-of-type{border-top:none}
+.srow .nom{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .bar{height:8px;background:var(--jaune);border-radius:4px;flex:none}
+.srow .bar.bleu{background:var(--bleu)} .srow .bar.gris{background:#BDBDBD}
+.srow .val{font-variant-numeric:tabular-nums;font-weight:600;min-width:24px;text-align:right}
+.loading{color:var(--muted);padding:16px;text-align:center}
+.err{color:var(--rouge-txt);font-size:12.5px;background:#fdeef0;border:1px solid #f2ccd2;border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.foot{color:var(--muted);font-size:11px;margin-top:8px;text-align:right}
+code{background:#eef2f7;border-radius:4px;padding:1px 5px;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN DE CONFIGURATION (affiché tant que l'identifiant d'application n'est pas renseigné) -->
+<div id="setup" class="centre" style="display:none;text-align:left">
+  <h2>Configuration requise</h2>
+  <p>Cette page doit être reliée à votre espace Microsoft 365 avant la première utilisation.</p>
+  <p>Ouvrez le fichier dans un éditeur de texte et remplacez, au début de la section
+  <code>&lt;script&gt;</code> de configuration&nbsp;:</p>
+  <p><code>CLIENT_ID</code> par l'« ID d'application (client) »<br>
+  <code>TENANT_ID</code> par l'« ID de l'annuaire (locataire) »</p>
+  <p>Ces deux valeurs figurent dans Microsoft Entra ID après la déclaration de l'application.
+  Le guide d'installation fourni avec ce fichier détaille chaque étape.</p>
+</div>
+
+<!-- ÉCRAN DE CONNEXION -->
+<div id="login" class="centre" style="display:none">
+  <h2>Gestion des mails — Jérôme ALLARD</h2>
+  <p>Connectez-vous avec votre compte <b>j.allard@atse-bordes.fr</b> pour afficher le tableau.
+  Les données restent entre votre navigateur et Microsoft&nbsp;365&nbsp;: rien n'est stocké ailleurs.</p>
+  <button class="btn" onclick="seConnecter()">Se connecter à Microsoft 365</button>
+</div>
+
+<!-- APPLICATION -->
+<div id="app" class="wrap" style="display:none">
+  <header class="bandeau">
+    <div>
+      <h1>Gestion des mails — Jérôme ALLARD</h1>
+      <div class="sub" id="sous-titre">ATSE BORDES · données Outlook en direct (7 derniers jours)</div>
+    </div>
+    <div>
+      <div class="stamp" id="stamp">…</div>
+      <div style="text-align:right;margin-top:6px">
+        <button class="btn sec" onclick="charger()">Actualiser</button>
+        <button class="btn sec" onclick="seDeconnecter()">Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="erreur" class="err" style="display:none"></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="k-hier">–</div><div class="l">Mails reçus depuis hier</div></div>
+    <div class="kpi rouge"><div class="n" id="k-prio">–</div><div class="l">À traiter en priorité</div></div>
+    <div class="kpi orange"><div class="n" id="k-48">–</div><div class="l">Sans réponse &gt; 48 h</div></div>
+    <div class="kpi orange"><div class="n" id="k-ao">–</div><div class="l">Appels d'offres en cours</div></div>
+    <div class="kpi vert"><div class="n" id="k-rdv">–</div><div class="l">RDV aujourd'hui</div></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card"><h2>⚠️ À traiter en priorité <span class="count" id="c-prio"></span></h2><div id="s-prio" class="loading">Chargement…</div></div>
+      <div class="card"><h2>⏰ Sans réponse depuis plus de 48 h <span class="count" id="c-48"></span></h2><div id="s-48" class="loading">Chargement…</div></div>
+      <div class="card"><h2>📋 Appels d'offres en cours <span class="count" id="c-ao"></span></h2><div id="s-ao" class="loading">Chargement…</div></div>
+      <div class="card"><h2>💶 Devis à suivre <span class="count" id="c-devis"></span></h2><div id="s-devis" class="loading">Chargement…</div></div>
+    </div>
+    <div>
+      <div class="card"><h2>🗓️ Agenda du jour <span class="count" id="c-rdv"></span></h2><div id="s-rdv" class="loading">Chargement…</div></div>
+      <div class="card"><h2>⏳ Réunions à confirmer <span class="count" id="c-tent"></span></h2><div id="s-tent" class="loading">Chargement…</div></div>
+      <div class="card"><h2>📁 Documents récents (SharePoint / OneDrive)</h2><div id="s-sp" class="loading">Chargement…</div></div>
+      <div class="card"><h2>👥 Principaux expéditeurs (7 jours)</h2><div id="s-exp" class="loading">Chargement…</div></div>
+      <div class="card"><h2>📂 Mails par affaire (7 jours)</h2><div id="s-aff" class="loading">Chargement…</div></div>
+      <div class="card"><h2>🗑️ Pub / prospection <span class="count" id="c-pub"></span></h2><div id="s-pub" class="loading">Chargement…</div></div>
+      <div class="card"><h2>ℹ️ Nomenclature</h2><div class="m">
+        <b>0.</b> Administratif / gestion (GESEC, Aides/EDF, RH, Fournisseurs) ·
+        <b>1.</b> Chantiers travaux tertiaire « VILLE – NOM » ·
+        <b>2.</b> Service / maintenance / SAV ·
+        <b>3.</b> Travaux particuliers ·
+        <b>4.</b> Personnel / Holding Jamas</div></div>
+    </div>
+  </div>
+  <div class="foot" id="foot">Aucun mail n'est déplacé ni catégorisé automatiquement : le tableau propose, vous appliquez dans Outlook.</div>
+</div>
+
+<script>
+/* ================== CONFIGURATION (à remplir une seule fois) ==================
+   Après la déclaration de l'application dans Microsoft Entra ID (voir le guide) :
+   - CLIENT_ID : « ID d'application (client) »
+   - TENANT_ID : « ID de l'annuaire (locataire) »                                */
+const CLIENT_ID = "f95ade1d-dffc-4714-8d8f-bb6a403fe170";
+const TENANT_ID = "e3c5113e-2fb0-4c8f-9c87-0b5878bf6a03";
+/* ============================================================================ */
+
+const MOI = "j.allard@atse-bordes.fr";
+const SCOPES = ["User.Read","Mail.Read","Calendars.Read","Sites.Read.All"];
+
+/* ---------- utilitaires ---------- */
+function $(id){return document.getElementById(id);}
+function esc(x){return (x==null?'':String(x)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function _lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function _lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function fmtDate(d){try{return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});}catch(e){return'';}}
+function fmtHeure(d){try{return new Date(d).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'}).replace(':',' h ');}catch(e){return'';}}
+function ageH(d){try{return (Date.now()-new Date(d).getTime())/36e5;}catch(e){return 0;}}
+function debut(joursAvant){const x=new Date();x.setHours(0,0,0,0);x.setDate(x.getDate()-joursAvant);return x;}
+
+/* ---------- classification (nomenclature de Jérôme) ---------- */
+function classer(m){
+ const s=((m.subject||'')+' ').toLowerCase();
+ const f=((m.from&&m.from.emailAddress&&m.from.emailAddress.address)||'').toLowerCase();
+ const PUB=/strava|linkedin|facebookmail|manomano|groupe-atlantic|hoka|ray-ban|newsletter|apec|avast|email\.apple|laposte|livraison\.orange|terrapinn|vonlanthen|compteur-energie|gefix|lequipe|nortiainvest|planity|samboat|trustpilot|elevenlabs|ouraring|openai|amazon|preventionbtp|infolegale|c-fluide|no-?reply|noreply/i;
+ if(PUB.test(f)||/kudos|save the date|d[ée]couvrez|jouez pour gagner|version en ligne|newsletter/i.test(s))return{g:'Pub / prospection',pub:true};
+ if(/gesec|eddia/i.test(f)||/gesec|eddia/i.test(s))return{g:'0. GESEC',cl:''};
+ if(/@edf\.fr/i.test(f)||/prime [ée]nergie|aides financi/i.test(s))return{g:'0. Aides / EDF',cl:''};
+ if(/conges@|flow-noreply/i.test(f)||/cong[ée]|candidature|recrutement|\bcv\b|apprenti|embauche|fiche de paie/i.test(s))return{g:'0. RH',cl:''};
+ if(/s[ée]minaire/i.test(s)||/a2cevents/i.test(f))return{g:'0. Séminaire',cl:''};
+ if(/aldes|saint-gobain|cedeo|tereva|mitsubishielectric|fra\.mee|@cta\.fr|climplus|robatherm|sofinther|barriquand|couturoux/i.test(f)||/ar commande|bon de livraison|avis d.enl[eè]vement/i.test(s))return{g:'0. Fournisseurs',cl:''};
+ if(/gasparini|atse-service\.fr|yuman\.io/i.test(f)||/ehpad|maintenance|\bsav\b|intervention|chaudi[eè]re|adoucisseur|analyseur/i.test(s))return{g:'2. Service',cl:'serv'};
+ if(/clinique|p[ée]rigueux|coulouniex|clapet|\bccf\b|cr opc/i.test(s)||/opmo|salleron|groupe-climater|egis-group|b6concept|gamba|varea/i.test(f))return{g:'1. Périgueux – Clinique Parc',cl:'trav'};
+ if(/lanmary|antonne/i.test(s)||/odetec|jdr-archi|emacoustic|fayat/i.test(f))return{g:'1. Antonne – Lanmary',cl:'trav'};
+ if(/ester|limoges/i.test(s)||/bouygues-construction|aircalo/i.test(f))return{g:'1. Limoges – Ester',cl:'trav'};
+ if(/souillac|allanot|louxor/i.test(s)||/i2d-conseils|jcrabos/i.test(f))return{g:'1. Souillac',cl:'trav'};
+ if(/photonis|exosens/i.test(s)||/exosens|barriquand/i.test(f))return{g:'1. Brive – Photonis',cl:'trav'};
+ if(/bergerac/i.test(s))return{g:'1. Bergerac – CH',cl:'trav'};
+ if(/sarlat/i.test(s))return{g:'1. Sarlat',cl:'trav'};
+ if(/salagnac|clairvivre/i.test(s))return{g:'1. Salagnac – Clairvivre',cl:'trav'};
+ if(/mareuil/i.test(s))return{g:'1. Mareuil',cl:'trav'};
+ if(/1810/i.test(s))return{g:'1. Brive – 1810 (GTB EDF)',cl:'trav'};
+ if(/neuvic|martel/i.test(s))return{g:'1. Autres chantiers',cl:'trav'};
+ if(/jamas|notaires|lascauxjuris/i.test(f)||/jamas/i.test(s))return{g:'4. Personnel / Holding Jamas',cl:'perso'};
+ if(/@atse-bordes\.fr/i.test(f))return{g:'0. Interne ATSE',cl:''};
+ if(/devis/i.test(s))return{g:'3. Travaux particuliers',cl:'perso'};
+ return{g:'Autres',cl:''};
+}
+const estAO=s=>/appel.{0,3}d.{0,2}offre|\bao\b|consultation|\bdce\b|\bmapa\b/i.test(s||'');
+const estDevis=s=>/devis/i.test(s||'');
+
+/* ---------- authentification Microsoft ---------- */
+let msalApp=null, compte=null;
+function initMsal(){
+ msalApp=new msal.PublicClientApplication({
+  auth:{clientId:CLIENT_ID,authority:"https://login.microsoftonline.com/"+TENANT_ID,
+        redirectUri:location.origin+location.pathname},
+  cache:{cacheLocation:"localStorage"}
+ });
+}
+function seConnecter(){msalApp.loginRedirect({scopes:SCOPES});}
+function seDeconnecter(){msalApp.logoutRedirect({postLogoutRedirectUri:location.origin+location.pathname});}
+async function jeton(){
+ try{const r=await msalApp.acquireTokenSilent({scopes:SCOPES,account:compte});return r.accessToken;}
+ catch(e){await msalApp.acquireTokenRedirect({scopes:SCOPES});}
+}
+async function graph(chemin,entetes){
+ const t=await jeton();
+ const r=await fetch("https://graph.microsoft.com/v1.0"+chemin,
+   {headers:Object.assign({Authorization:"Bearer "+t},entetes||{})});
+ if(!r.ok)throw new Error("Microsoft Graph : erreur "+r.status+" sur "+chemin);
+ return r.json();
+}
+
+/* ---------- chargement des données ---------- */
+async function charger(){
+ try{
+  $('erreur').style.display='none';
+  ['s-prio','s-48','s-ao','s-devis','s-rdv','s-tent','s-sp','s-exp','s-aff','s-pub'].forEach(id=>{$(id).className='loading';$(id).textContent='Chargement…';});
+  $('stamp').textContent='Actualisation…';
+
+  // Mails des 7 derniers jours (boîte de réception), pagination Graph
+  const depuis=debut(7).toISOString();
+  let url="/me/mailFolders/inbox/messages?$select=subject,from,receivedDateTime,isRead,webLink"+
+          "&$filter=receivedDateTime ge "+depuis+"&$orderby=receivedDateTime desc&$top=100";
+  let mails=[];
+  for(let p=0;p<4&&url;p++){
+   const d=await graph(url);
+   mails=mails.concat(d.value||[]);
+   url=d['@odata.nextLink']?d['@odata.nextLink'].replace('https://graph.microsoft.com/v1.0',''):null;
+  }
+
+  // Agenda du jour (heure de Paris)
+  const j0=debut(0), j1=new Date(j0.getTime()+864e5);
+  const cal=await graph("/me/calendarview?startDateTime="+j0.toISOString()+"&endDateTime="+j1.toISOString()+
+    "&$select=subject,start,end,location,organizer,webLink,isAllDay,onlineMeeting&$orderby=start/dateTime&$top=25",
+    {Prefer:'outlook.timezone="Europe/Paris"'});
+  const rdv=(cal.value||[]).filter(e=>!e.isAllDay);
+
+  // Réunions à confirmer (invitations sans réponse, 14 prochains jours)
+  const j14=new Date(j0.getTime()+14*864e5);
+  const cal2=await graph("/me/calendarview?startDateTime="+j0.toISOString()+"&endDateTime="+j14.toISOString()+
+    "&$select=subject,start,end,organizer,webLink,responseStatus,isAllDay&$orderby=start/dateTime&$top=50",
+    {Prefer:'outlook.timezone="Europe/Paris"'});
+  const aConfirmer=(cal2.value||[]).filter(e=>!e.isAllDay&&e.responseStatus&&e.responseStatus.response==='notResponded');
+
+  // Documents récents (SharePoint / OneDrive) — rubrique tolérante si l'autorisation manque
+  let docs=null;
+  try{const ins=await graph("/me/insights/used?$top=8");docs=ins.value||[];}catch(e){docs=null;}
+
+  rendre(mails,rdv,aConfirmer,docs);
+ }catch(e){
+  $('erreur').textContent="Erreur de chargement : "+e.message+" — utilisez « Actualiser » pour réessayer.";
+  $('erreur').style.display='block';
+  $('stamp').textContent='Échec de l\'actualisation';
+ }
+}
+
+/* ---------- rendu ---------- */
+function ligne(m,c,dotCl,detail){
+ const lien=m.webLink?'<a href="'+esc(m.webLink)+'" target="_blank" rel="noopener">'+esc(m.subject||'(sans objet)')+'</a>':esc(m.subject||'(sans objet)');
+ const chip=c&&c.g?'<span class="chip '+(c.cl||'')+'">'+esc(c.g)+'</span>':'';
+ return '<div class="item"><span class="dot '+(dotCl||'')+'"></span><div class="body">'+
+   '<div class="t">'+lien+chip+'</div><div class="m">'+esc(detail)+'</div></div></div>';
+}
+function nomExp(m){return (m.from&&m.from.emailAddress&&(m.from.emailAddress.name||m.from.emailAddress.address))||'';}
+function adrExp(m){return ((m.from&&m.from.emailAddress&&m.from.emailAddress.address)||'').toLowerCase();}
+function barres(id,paires,couleurParDefaut){
+ const max=Math.max.apply(null,paires.map(p=>p[1]).concat([1]));
+ $(id).className='';
+ $(id).innerHTML=paires.map(p=>'<div class="srow"><span class="nom">'+esc(p[0])+'</span>'+
+  '<span class="bar '+(p[2]||couleurParDefaut||'')+'" style="width:'+Math.max(8,Math.round(120*p[1]/max))+'px"></span>'+
+  '<span class="val">'+p[1]+'</span></div>').join('');
+}
+function rendre(mails,rdv,aConfirmer,docs){
+ aConfirmer=aConfirmer||[];
+ const infos=mails.map(m=>({m:m,c:classer(m)}));
+ const hier=debut(1).getTime();
+ const recus=infos.filter(x=>new Date(x.m.receivedDateTime).getTime()>=hier);
+ const pub=infos.filter(x=>x.c.pub);
+ const nonLus=infos.filter(x=>!x.m.isRead&&!x.c.pub&&adrExp(x.m)!==MOI);
+ const prio=nonLus.filter(x=>ageH(x.m.receivedDateTime)<=48);
+ const r48=nonLus.filter(x=>ageH(x.m.receivedDateTime)>48).sort((a,b)=>new Date(a.m.receivedDateTime)-new Date(b.m.receivedDateTime));
+ const ao=infos.filter(x=>estAO(x.m.subject)&&!x.c.pub);
+ const devis=infos.filter(x=>estDevis(x.m.subject)&&!x.c.pub&&!estAO(x.m.subject));
+
+ $('k-hier').textContent=recus.length;
+ $('k-prio').textContent=prio.length;
+ $('k-48').textContent=r48.length;
+ $('k-ao').textContent=ao.length;
+ $('k-rdv').textContent=rdv.length;
+ $('c-prio').textContent=prio.length;$('c-48').textContent=r48.length;
+ $('c-ao').textContent=ao.length;$('c-devis').textContent=devis.length;
+ $('c-rdv').textContent=rdv.length;$('c-pub').textContent=pub.length;
+
+ const bloc=(id,liste,dot,vide)=>{ $(id).className='';
+  $(id).innerHTML=liste.length?liste.map(x=>ligne(x.m,x.c,dot,nomExp(x.m)+' — '+fmtDate(x.m.receivedDateTime))).join(''):'<div class="m">'+vide+'</div>'; };
+ bloc('s-prio',prio,'rouge','Rien à signaler : aucun mail non lu en attente.');
+ bloc('s-48',r48,'rouge','Aucune relance en attente.');
+ bloc('s-ao',ao,'orange','Aucun appel d\'offres détecté sur 7 jours.');
+ $('s-devis').className='';
+ $('s-devis').innerHTML=devis.length?devis.map(x=>ligne(x.m,x.c,'',
+   (adrExp(x.m)===MOI?'envoyé par vous':'reçu de '+nomExp(x.m))+' — '+fmtDate(x.m.receivedDateTime))).join(''):'<div class="m">Aucun devis détecté sur 7 jours.</div>';
+
+ $('s-rdv').className='';
+ $('s-rdv').innerHTML=rdv.length?rdv.map(e=>{
+   const t1=fmtHeure(e.start.dateTime+(e.start.dateTime.endsWith('Z')?'':'Z'));
+   const t2=fmtHeure(e.end.dateTime+(e.end.dateTime.endsWith('Z')?'':'Z'));
+   const lien=e.webLink?'<a href="'+esc(e.webLink)+'" target="_blank" rel="noopener">'+esc(e.subject||'(sans titre)')+'</a>':esc(e.subject||'');
+   const teams=(e.onlineMeeting&&e.onlineMeeting.joinUrl)?' · <a href="'+esc(e.onlineMeeting.joinUrl)+'" target="_blank" rel="noopener">Rejoindre sur Teams</a>':'';
+   return '<div class="ev"><div class="time">'+t1+' – '+t2+'</div><div class="body"><div class="t">'+lien+'</div>'+
+     '<div class="m">'+esc(e.location&&e.location.displayName||'')+(e.organizer?' — org. : '+esc(e.organizer.emailAddress.name||''):'')+teams+'</div></div></div>';
+  }).join(''):'<div class="m">Aucun rendez-vous aujourd\'hui.</div>';
+
+ // Réunions à confirmer
+ $('c-tent').textContent=aConfirmer.length;
+ $('s-tent').className='';
+ $('s-tent').innerHTML=aConfirmer.length?aConfirmer.map(e=>{
+   const d=new Date(e.start.dateTime+(e.start.dateTime.endsWith('Z')?'':'Z'));
+   const lien=e.webLink?'<a href="'+esc(e.webLink)+'" target="_blank" rel="noopener">'+esc(e.subject||'(sans titre)')+'</a>':esc(e.subject||'');
+   return '<div class="item"><span class="dot orange"></span><div class="body"><div class="t">'+lien+'</div>'+
+     '<div class="m">'+d.toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'2-digit'})+' à '+fmtHeure(e.start.dateTime+(e.start.dateTime.endsWith('Z')?'':'Z'))+
+     (e.organizer?' — invitation de '+esc(e.organizer.emailAddress.name||''):'')+' — répondre dans Outlook</div></div></div>';
+  }).join(''):'<div class="m">Aucune invitation en attente de réponse (14 prochains jours).</div>';
+
+ // Documents récents SharePoint / OneDrive
+ $('s-sp').className='';
+ if(docs===null){
+  $('s-sp').innerHTML='<div class="m">Rubrique indisponible : l\'autorisation « Sites.Read.All » n\'a pas été accordée (voir le guide, étape 1).</div>';
+ }else{
+  $('s-sp').innerHTML=docs.length?docs.map(d=>{
+    const v=d.resourceVisualization||{}, r=d.resourceReference||{};
+    const lien=r.webUrl?'<a href="'+esc(r.webUrl)+'" target="_blank" rel="noopener">'+esc(v.title||'Document')+'</a>':esc(v.title||'Document');
+    return '<div class="item"><span class="dot gris"></span><div class="body"><div class="t">'+lien+
+      '<span class="chip">'+esc((v.type||'').toLowerCase())+'</span></div>'+
+      '<div class="m">'+esc(v.containerDisplayName||'')+(d.lastUsed&&d.lastUsed.lastAccessedDateTime?' — consulté le '+fmtDate(d.lastUsed.lastAccessedDateTime):'')+'</div></div></div>';
+   }).join(''):'<div class="m">Aucun document récent.</div>';
+ }
+
+ // Principaux expéditeurs (hors soi-même et pub)
+ const cptExp={};
+ infos.filter(x=>!x.c.pub&&adrExp(x.m)!==MOI).forEach(x=>{const n=nomExp(x.m);cptExp[n]=(cptExp[n]||0)+1;});
+ barres('s-exp',Object.entries(cptExp).sort((a,b)=>b[1]-a[1]).slice(0,7));
+
+ // Mails par affaire
+ const cptAff={};
+ infos.filter(x=>!x.c.pub).forEach(x=>{cptAff[x.c.g]=(cptAff[x.c.g]||0)+1;});
+ barres('s-aff',Object.entries(cptAff).sort((a,b)=>b[1]-a[1]).slice(0,10).map(p=>{
+   const cl=p[0].startsWith('2.')?'bleu':(p[0].startsWith('1.')?'':'gris');return [p[0],p[1],cl];}));
+
+ // Pub
+ const cptPub={};
+ pub.forEach(x=>{const d=adrExp(x.m).split('@')[1]||'';cptPub[d]=(cptPub[d]||0)+1;});
+ $('s-pub').className='';
+ $('s-pub').innerHTML='<div class="m"><b>'+pub.length+'</b> mails de prospection sur 7 jours. Principaux domaines : '+
+   esc(Object.entries(cptPub).sort((a,b)=>b[1]-a[1]).slice(0,6).map(p=>p[0]+' ('+p[1]+')').join(', '))+'.</div>';
+
+ const maintenant=new Date();
+ $('stamp').textContent='Actualisé le '+maintenant.toLocaleDateString('fr-FR')+' à '+fmtHeure(maintenant);
+ $('foot').textContent=mails.length+' mails analysés (7 jours) · Aucun mail n\'est déplacé ni catégorisé automatiquement.';
+}
+
+/* ---------- démarrage ---------- */
+(async function(){
+ if(CLIENT_ID.indexOf('COLLEZ_ICI')===0||TENANT_ID.indexOf('COLLEZ_ICI')===0){
+  $('setup').style.display='block';return;
+ }
+ initMsal();
+ await msalApp.initialize();
+ try{const rep=await msalApp.handleRedirectPromise();if(rep&&rep.account)msalApp.setActiveAccount(rep.account);}catch(e){}
+ const comptes=msalApp.getAllAccounts();
+ if(comptes.length){compte=comptes[0];msalApp.setActiveAccount(compte);$('app').style.display='block';charger();}
+ else{$('login').style.display='block';}
+})();
+</script>
+</body>
+</html>
