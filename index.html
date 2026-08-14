@@ -2044,6 +2044,7 @@ function propager(id,ch){
    if(!VALID[id])VALID[id]=Date.now();validSave();}
  // affichage, sur toutes les pages
  if(ch.lu!=null)syncReadUI(id,ch.lu);
+ if(ch.classe||ch.supprime){try{renderGroupsCard();}catch(e){}}
  if(ch.cat){updateRowCat(id,ch.cat);
    document.querySelectorAll('.catsel[data-id="'+q+'"]').forEach(i=>{i.value=ch.cat;});
    lignesDe(id).forEach(r=>{let chip=r.querySelector('.catchip');
@@ -4283,6 +4284,19 @@ async function loadBacklog(){
   const aiBtn='<button class="minibtn aicat" title="Utilise l\'IA + vos habitudes pour remplir les catégories encore vides ci-dessous">🧠 Pré-catégoriser le reste avec l\'IA</button>';
   box.innerHTML=u2.length?(aiBtn+k2.map(g=>{const list=by2[g];const real=(REALCAT[g]&&MASTERCATS.indexOf(REALCAT[g])>=0)?REALCAT[g]:(MASTERCATS.indexOf(g)>=0?g:'');return '<details class="grp"'+og(g,false)+'><div class="bar"></div><summary>'+esc(g)+' <span class="badge">'+list.length+'</span></summary><div class="inner">'+(real?'<button class="minibtn batch" data-batch="'+esc(real)+'" data-ids="'+list.map(m=>esc(m.id)).join('|')+'">Tout classer en « '+esc(real)+' »</button>':'')+list.slice(0,60).map(m=>richRow(m,{filing:true})).join('')+'</div></details>';}).join('')):'<div class="sub">Tout est catégorisé depuis le 1er janvier 2026. 👌</div>';
  }catch(e){box.innerHTML='<div class="err">'+esc(e.message)+'</div>';BACKLOG_LOADED=false;}}
+// « Mails par affaire » : par défaut, seuls les mails restant à traiter (l'encart
+// se vide réellement) ; le bouton « Tout (15 jours) » rétablit la consultation complète.
+function renderGroupsCard(){try{
+ const el=document.getElementById('groups');if(!el)return;
+ const groups=window.__groups||{},keys=window.__groupKeys||[];
+ const tous=_lsGet('grpsTous')==='1';
+ const shown=keys.map(k=>({k:k,l:tous?(groups[k]||[]):(groups[k]||[]).filter(m=>!dejaTraite(m))})).filter(x=>x.l&&x.l.length);
+ const tgl='<div class="uncbar" style="margin-bottom:6px"><button class="tgl'+(tous?'':' on')+'" id="grps-mode-at" title="Seuls les mails ni lus-et-classés">À traiter</button><button class="tgl'+(tous?' on':'')+'" id="grps-mode-tous" title="Tous les mails des 15 derniers jours, par affaire">Tout (15 jours)</button></div>';
+ el.innerHTML=tgl+(shown.length?shown.map((x,i)=>'<details class="grp"'+og(x.k,i===0)+'><div class="bar"></div><summary>'+esc(x.k)+' <span class="badge">'+x.l.length+'</span></summary><div class="inner">'+x.l.slice(0,6).map(m=>mailRow(m,false)).join('')+'</div></details>').join(''):'<div class="sub">Tout est traité sur les 15 derniers jours. 👌</div>');
+ const a=document.getElementById('grps-mode-at'),b=document.getElementById('grps-mode-tous');
+ if(a)a.onclick=()=>{_lsSet('grpsTous','0');renderGroupsCard();};
+ if(b)b.onclick=()=>{_lsSet('grpsTous','1');renderGroupsCard();};
+}catch(e){}}
 // loadData(SNAP) : sans argument, charge tout depuis Microsoft 365 (passe « réelle »).
 // Avec un instantané SNAP issu du cache local, affiche le tableau immédiatement,
 // sans aucun appel réseau (passe « cache »).
@@ -4400,7 +4414,7 @@ async function loadData(SNAP){
     const fa=FIN.indexOf(a),fb=FIN.indexOf(b);
     if(fa>=0||fb>=0)return (fa<0?-1:fa)-(fb<0?-1:fb);
     return a.localeCompare(b,'fr');});
-  document.getElementById('groups').innerHTML=keys.map((k,i)=>`<details class="grp"${og(k,i===0)}><div class="bar"></div><summary>${esc(k)} <span class="badge">${groups[k].length}</span></summary><div class="inner">${groups[k].slice(0,6).map(m=>mailRow(m,false)).join('')}</div></details>`).join('')||'<div class="sub">Aucun mail métier.</div>';
+  window.__groups=groups;window.__groupKeys=keys;renderGroupsCard();
 
   // Fils de conversation
   const convMap={};mails.forEach(m=>{if(classify(m).pub)return;if(!m.conversationId)return;(convMap[m.conversationId]=convMap[m.conversationId]||[]).push(m);});
