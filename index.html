@@ -475,6 +475,13 @@ body.sombre .catsel,body.sombre #filter,body.sombre textarea,body.sombre input[t
 body.sombre .modal-card{background:#1d2229}
 body.sombre .mbar button.ghost,body.sombre .mbar a.ghost{background:#1d2229;color:var(--ink)}
 body.sombre ::-webkit-scrollbar-thumb{background:#3a434f;border-color:#14171c}
+body.sombre .mbar button.ghost,body.sombre .mbar a.ghost{background:#1d2229!important;color:var(--ink)!important;border-color:#2c333d}
+body.sombre .qrpop{background:#1d2229;border-color:#2c333d;color:var(--ink)}
+body.sombre .cpIt{color:var(--ink)}
+body.sombre .cpIt.cpProp{background:#223049!important;color:#cfe3f7!important}
+body.sombre .cpIt.cpProp em{color:#9fb8d4}
+body.sombre .cpSug{color:#9aa4b1}
+body.sombre .cpFilter,body.sombre .ncName{background:#161a20;border-color:#313945;color:var(--ink)}
 /* ---- Densité compacte (par défaut sur PC : plus de mails à l'écran) ---- */
 body.dense{font-size:13px}
 body.dense .item,body.dense .uitem{padding:4px 6px}
@@ -2435,7 +2442,7 @@ function renderMaJournee(cal){try{
  const kpis=document.querySelector('.kpis');if(!kpis)return;
  let el=document.getElementById('majournee');
  if(!el){el=document.createElement('div');el.id='majournee';
-  el.style.cssText='background:#fff;border:1px solid var(--line);border-left:4px solid #f5cb00;border-radius:10px;padding:10px 14px;margin:0 0 12px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start';
+  el.style.cssText='background:var(--card);border:1px solid var(--line);border-left:4px solid #f5cb00;border-radius:10px;padding:10px 14px;margin:0 0 12px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start';
   kpis.parentNode.insertBefore(el,kpis);}
  const now=new Date();
  const rdv=(cal||[]).filter(e=>!e.isAllDay);
